@@ -1,0 +1,216 @@
+import React from "react";
+import { Calendar, Car, User, Wrench, DollarSign } from "lucide-react";
+
+const CarDetails = ({ car }: { car: Car }) => {
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+        }).format(amount);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case "available":
+                return "bg-green-100 text-green-800";
+            case "in-use":
+                return "bg-blue-100 text-blue-800";
+            case "maintenance":
+                return "bg-yellow-100 text-yellow-800";
+            case "out-of-service":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const totalMaintenanceCost = car.maintenanceHistory.reduce(
+        (total, record) => {
+            const cost = record.const || record.const || 0;
+            return total + cost;
+        },
+        0
+    );
+
+    return (
+        <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+            {/* Car Header */}
+            <div className="flex items-center justify-between mb-8 pb-6 border-b">
+                <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-blue-100 rounded-full">
+                        <Car className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            {car.brand} {car.model}
+                        </h1>
+                        <p className="text-lg text-gray-600">
+                            Plate: {car.plateNumber}
+                        </p>
+                    </div>
+                </div>
+                <span
+                    className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(
+                        car.status
+                    )}`}
+                >
+                    {car.status === "in_use" ? "in use" : car.status}
+                </span>
+            </div>
+
+            {/* Car Basic Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">
+                        Year
+                    </h3>
+                    <p className="text-2xl font-semibold text-gray-900">
+                        {car.year}
+                    </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">
+                        Color
+                    </h3>
+                    <p className="text-2xl font-semibold text-gray-900">
+                        {car.color}
+                    </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">
+                        Meter Reading
+                    </h3>
+                    <p className="text-2xl font-semibold text-gray-900">
+                        {car.meterReading.toLocaleString()}
+                    </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">
+                        Total Maintenance Cost
+                    </h3>
+                    <p className="text-2xl font-semibold text-green-600">
+                        {formatCurrency(totalMaintenanceCost)}
+                    </p>
+                </div>
+            </div>
+
+            {/* Maintenance History */}
+            <div className="mb-8">
+                <div className="flex items-center space-x-2 mb-6">
+                    <Wrench className="w-6 h-6 text-gray-600" />
+                    <h2 className="text-2xl font-bold text-gray-900">
+                        Maintenance History
+                    </h2>
+                    <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                        {car.maintenanceHistory.length} records
+                    </span>
+                </div>
+
+                <div className="space-y-6">
+                    {car.maintenanceHistory.map((record) => (
+                        <div
+                            key={record._id}
+                            className="border rounded-lg p-6 hover:shadow-md transition-shadow"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center space-x-3">
+                                    <Calendar className="w-5 h-5 text-gray-500" />
+                                    <span className="text-lg font-semibold text-gray-900">
+                                        {formatDate(record.date)}
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <DollarSign className="w-5 h-5 text-green-600" />
+                                    <span className="text-lg font-bold text-green-600">
+                                        {formatCurrency(
+                                            record.const || record.const || 0
+                                        )}
+                                    </span>
+                                    {record.const && (
+                                        <span className="text-sm text-gray-500">
+                                            (Mechanic:{" "}
+                                            {formatCurrency(record.const)})
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <p className="text-gray-700 mb-4">
+                                {record.description}
+                            </p>
+
+                            {/* Driver Info */}
+                            <div className="flex items-center space-x-2 mb-4 p-3 bg-gray-50 rounded-lg">
+                                <User className="w-4 h-4 text-gray-500" />
+                                <div className="text-sm">
+                                    <span className="font-medium text-gray-900">
+                                        {record.driver.name}
+                                    </span>
+                                    <span className="text-gray-500 ml-2">
+                                        {record.driver.phoneNumber} • License:{" "}
+                                        {record.driver.licenseNumber}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Service Categories */}
+                            <div>
+                                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                                    Services Performed:
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {record.subCategories.map((subCategory) => (
+                                        <div
+                                            key={subCategory._id}
+                                            className="bg-blue-50 border border-blue-200 rounded-lg p-2"
+                                        >
+                                            <div className="text-sm font-medium text-blue-900">
+                                                {subCategory.name}
+                                            </div>
+                                            <div className="text-xs text-blue-700">
+                                                {subCategory.category.name}
+                                            </div>
+                                            <div className="text-xs text-gray-600 mt-1">
+                                                {subCategory.description}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Car Metadata */}
+            <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    System Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div>
+                        <span className="font-medium">Car ID:</span> {car._id}
+                    </div>
+                    <div>
+                        <span className="font-medium">Created:</span>{" "}
+                        {formatDate(car.createdAt)}
+                    </div>
+                    <div>
+                        <span className="font-medium">Last Updated:</span>{" "}
+                        {formatDate(car.updatedAt)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default CarDetails;
