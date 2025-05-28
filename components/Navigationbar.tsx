@@ -3,6 +3,9 @@ import { Car, House, LogOut } from "lucide-react";
 import { LiaIdCard } from "react-icons/lia";
 import NavigationTabs from "./NavigationTabs";
 import { BiCategory } from "react-icons/bi";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { useAdminStore } from "@/store/admin/useAdminStore";
 const tabs: any = [
     {
         title: "dashboard",
@@ -27,6 +30,19 @@ const tabs: any = [
 ];
 
 const Navigationbar = () => {
+    const router = useRouter();
+    const clearAdmin = useAdminStore((state) => state.clearAdmin);
+
+    const handleLogout = () => {
+        // Remove token from cookies
+        Cookies.remove("token");
+
+        // Clear admin store
+        clearAdmin();
+
+        // Redirect to login
+        router.push("/login");
+    };
     return (
         <div className="bg-[#222] text-white text-lg text-center p-5 h-screen col-span-2 sticky top-0">
             <div className="h-full w-full px-[15px] pt-[25px] flex flex-col gap-[63px]">
@@ -44,8 +60,11 @@ const Navigationbar = () => {
                         />
                     ))}
                 </div>
-                <div className="flex ">
-                    <div className="bg-transparent hover:bg-[#3a3a3a] text-primary-default flex items-center gap-[12px] py-[10px] px-[15px] cursor-pointer rounded-[4px] hover:bg-primary-default hover:text-white transition duration-300 w-full">
+                <div className="flex">
+                    <div
+                        onClick={handleLogout}
+                        className="bg-transparent hover:bg-[#3a3a3a] text-primary-default flex items-center gap-[12px] py-[10px] px-[15px] cursor-pointer rounded-[4px] hover:bg-primary-default hover:text-white transition duration-300 w-full"
+                    >
                         <LogOut color="#B90000" />
                         <h2 className="text-[15px] font-[500] capitalize">
                             Logout

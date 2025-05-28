@@ -1,33 +1,27 @@
-import { useAdminStore } from "@/store/admin/useAdminStore";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation"; // Add this import
+import { useRouter } from "next/navigation";
+import { useAdminStore } from "@/store/admin/useAdminStore";
 
-export type UserRegisterData = {
-    name: string;
+export type UserLoginData = {
     email: string;
     password: string;
-    phoneNumber: string;
 };
 
-const useRegister = () => {
-    const router = useRouter(); // Add this
+const useLogin = () => {
+    const router = useRouter();
     const setAdmin = useAdminStore((state) => state.setAdmin);
 
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     return useMutation({
-        mutationKey: ["auth", "register"],
-        mutationFn: async (data: UserRegisterData) => {
-            const response = await axios.post(
-                `${baseUrl}/admin/register`,
-                data,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+        mutationKey: ["auth", "login"],
+        mutationFn: async (data: UserLoginData) => {
+            const response = await axios.post(`${baseUrl}/admin/login`, data, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             // Save token in cookies
             if (response.data.token) {
                 Cookies.set("token", response.data.token, {
@@ -37,6 +31,7 @@ const useRegister = () => {
                 });
             }
 
+            
             // Store admin data in Zustand store
             if (response.data.data.admin) {
                 setAdmin(response.data.data.admin);
@@ -52,4 +47,4 @@ const useRegister = () => {
     });
 };
 
-export default useRegister;
+export default useLogin;

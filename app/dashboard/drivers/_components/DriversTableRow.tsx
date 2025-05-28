@@ -5,7 +5,7 @@ export type DriverTableRowProps = {
     driver: Driver;
 };
 
-const DriverTableRow = ({ driver, onOpen }: DriverTableRowProps) => {
+const DriverTableRow = ({ driver }: DriverTableRowProps) => {
     return (
         <div className="w-full grid grid-cols-6 justify-items-center px-[42px] py-[22px]">
             <div className="text-[#000] text-[14px] font-[400]">
@@ -25,10 +25,7 @@ const DriverTableRow = ({ driver, onOpen }: DriverTableRowProps) => {
                 {driver.phoneNumber}
             </div>
             <div className="more">
-                <button
-                    // onClick={() => onOpen(<OrderDetails />)}
-                    className="py-[8px] px-[12px] rounded-[8px] bg-[#1d1d1d] text-white outline-none cursor-pointer hover:bg-primary-default/80 transition duration-300"
-                >
+                <button className="py-[8px] px-[12px] rounded-[8px] bg-[#1d1d1d] text-white outline-none cursor-pointer hover:bg-primary-default/80 transition duration-300">
                     More
                 </button>
             </div>

@@ -3,9 +3,11 @@ import { User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React from "react";
 import GridContainer from "./GridContainer";
+import { useAdminStore } from "@/store/admin/useAdminStore";
 
 const DashNavbar = () => {
     const pathname = usePathname();
+    const { admin } = useAdminStore((state) => state);
 
     // Extract the last segment of the path for display
     const extractPathTitle = (path: string): string => {
@@ -30,10 +32,10 @@ const DashNavbar = () => {
             <div className="flex gap-[14px]">
                 <div className="flex flex-col items-end gap-[2px]">
                     <h1 className="text-[#6E6B7B] text-[14px] font-normal">
-                        Ayman Hamdallah
+                        {admin?.name}
                     </h1>
-                    <span className="text-[#B9B9C3] text-[12px] font-normal">
-                        Admin
+                    <span className="text-[#B9B9C3] text-[12px] font-normal capitalize">
+                        {admin?.role}
                     </span>
                 </div>
                 <div className="w-[50px] h-[50px] rounded-full flex justify-center items-center border border-[#B9B9C3]">

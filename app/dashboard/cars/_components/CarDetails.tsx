@@ -1,7 +1,16 @@
+"use client";
 import React from "react";
 import { Calendar, Car, User, Wrench, DollarSign } from "lucide-react";
+import useDeleteCar from "@/hooks/cars/useDeleteCar";
+import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
+import { useRouter } from "next/navigation";
 
-const CarDetails = ({ car }: { car: Car }) => {
+const CarDetails = () => {
+    const { mutateAsync: deleteCar } = useDeleteCar();
+    const { car } = useCurrentCarStore((state) => state);
+
+    const router = useRouter();
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
@@ -32,16 +41,24 @@ const CarDetails = ({ car }: { car: Car }) => {
         }
     };
 
-    const totalMaintenanceCost = car.maintenanceHistory.reduce(
+    const handleUpdateNav = (car: Car) => {
+        router.push(`/dashboard/cars/${car._id}/update`);
+    };
+
+    const totalMaintenanceCost = car?.maintenanceHistory.reduce(
         (total, record) => {
-            const cost = record.const || record.const || 0;
+            const cost = record.cost || record.cost || 0;
             return total + cost;
         },
         0
     );
 
+    if (!car) {
+        return;
+    }
+
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="w-full p-6 bg-white shadow-lg rounded-lg">
             {/* Car Header */}
             <div className="flex items-center justify-between mb-8 pb-6 border-b">
                 <div className="flex items-center space-x-4">
@@ -50,19 +67,19 @@ const CarDetails = ({ car }: { car: Car }) => {
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">
-                            {car.brand} {car.model}
+                            {car?.brand} {car?.model}
                         </h1>
                         <p className="text-lg text-gray-600">
-                            Plate: {car.plateNumber}
+                            Plate: {car?.plateNumber}
                         </p>
                     </div>
                 </div>
                 <span
                     className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(
-                        car.status
+                        car?.status
                     )}`}
                 >
-                    {car.status === "in_use" ? "in use" : car.status}
+                    {car?.status === "in_use" ? "in use" : car?.status}
                 </span>
             </div>
 
@@ -73,7 +90,7 @@ const CarDetails = ({ car }: { car: Car }) => {
                         Year
                     </h3>
                     <p className="text-2xl font-semibold text-gray-900">
-                        {car.year}
+                        {car?.year}
                     </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -81,7 +98,7 @@ const CarDetails = ({ car }: { car: Car }) => {
                         Color
                     </h3>
                     <p className="text-2xl font-semibold text-gray-900">
-                        {car.color}
+                        {car?.color}
                     </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -89,7 +106,7 @@ const CarDetails = ({ car }: { car: Car }) => {
                         Meter Reading
                     </h3>
                     <p className="text-2xl font-semibold text-gray-900">
-                        {car.meterReading.toLocaleString()}
+                        {car?.meterReading.toLocaleString()}
                     </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -97,7 +114,7 @@ const CarDetails = ({ car }: { car: Car }) => {
                         Total Maintenance Cost
                     </h3>
                     <p className="text-2xl font-semibold text-green-600">
-                        {formatCurrency(totalMaintenanceCost)}
+                        {formatCurrency(totalMaintenanceCost ?? 0)}
                     </p>
                 </div>
             </div>
@@ -110,12 +127,12 @@ const CarDetails = ({ car }: { car: Car }) => {
                         Maintenance History
                     </h2>
                     <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                        {car.maintenanceHistory.length} records
+                        {car?.maintenanceHistory.length} records
                     </span>
                 </div>
 
                 <div className="space-y-6">
-                    {car.maintenanceHistory.map((record) => (
+                    {car?.maintenanceHistory.map((record) => (
                         <div
                             key={record._id}
                             className="border rounded-lg p-6 hover:shadow-md transition-shadow"
@@ -131,13 +148,13 @@ const CarDetails = ({ car }: { car: Car }) => {
                                     <DollarSign className="w-5 h-5 text-green-600" />
                                     <span className="text-lg font-bold text-green-600">
                                         {formatCurrency(
-                                            record.const || record.const || 0
+                                            record.cost || record.cost || 0
                                         )}
                                     </span>
-                                    {record.const && (
+                                    {record.cost && (
                                         <span className="text-sm text-gray-500">
                                             (Mechanic:{" "}
-                                            {formatCurrency(record.const)})
+                                            {formatCurrency(record.cost)})
                                         </span>
                                     )}
                                 </div>
@@ -197,15 +214,38 @@ const CarDetails = ({ car }: { car: Car }) => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                     <div>
-                        <span className="font-medium">Car ID:</span> {car._id}
+                        <span className="font-medium">Car ID:</span> {car?._id}
                     </div>
                     <div>
                         <span className="font-medium">Created:</span>{" "}
-                        {formatDate(car.createdAt)}
+                        {formatDate(car?.createdAt)}
                     </div>
                     <div>
                         <span className="font-medium">Last Updated:</span>{" "}
-                        {formatDate(car.updatedAt)}
+                        {formatDate(car?.updatedAt)}
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-6">
+                    {/* Delete Button */}
+                    <div>
+                        <button
+                            className="cursor-pointer px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+                            onClick={async () => {
+                                await deleteCar(car._id);
+                            }}
+                        >
+                            Delete Car
+                        </button>
+                    </div>
+                    {/* Delete Button */}
+                    <div>
+                        <button
+                            onClick={() => handleUpdateNav(car)}
+                            className="cursor-pointer px-4 py-2 bg-orange-400 text-white text-sm rounded hover:bg-orange-500 transition"
+                        >
+                            Update Car
+                        </button>
                     </div>
                 </div>
             </div>

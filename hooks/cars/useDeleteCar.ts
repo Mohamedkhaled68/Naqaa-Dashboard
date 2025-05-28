@@ -3,26 +3,16 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this import
 
-export type CreateCarData = {
-    plateNumber: string;
-    brand: string;
-    model: string;
-    year: number;
-    color: string;
-    // driver: string;
-    status: string;
-};
-
-const useCreateCar = () => {
+const useDeleteCar = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
     const router = useRouter();
     const queryClient = useQueryClient(); // Add this
 
     return useMutation({
-        mutationKey: ["cars", "CreateCars"],
-        mutationFn: async (data: CreateCarData) => {
-            const response = await axios.post(`${baseUrl}/cars`, data, {
+        mutationKey: ["cars", "deleteCar"],
+        mutationFn: async (id: string) => {
+            const response = await axios.delete(`${baseUrl}/cars/${id}`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -32,15 +22,12 @@ const useCreateCar = () => {
         },
 
         onSuccess: () => {
-            // queryClient.invalidateQueries({
-            //     queryKey: ["cars"],
-            // });
-
             queryClient.invalidateQueries({
                 queryKey: ["cars", "getCars"],
                 exact: true,
             });
-            console.log("sd");
+
+            router.push("/dashboard/cars");
         },
 
         onError: (error: any) => {
@@ -49,4 +36,4 @@ const useCreateCar = () => {
     });
 };
 
-export default useCreateCar;
+export default useDeleteCar;

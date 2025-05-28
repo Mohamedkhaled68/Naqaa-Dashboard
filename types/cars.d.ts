@@ -7,6 +7,7 @@ type MaintenanceRecord = {
         phoneNumber: string;
         nationalId: string;
         licenseNumber: string;
+        address: string;
     };
     subCategories: {
         _id: string;
@@ -20,7 +21,7 @@ type MaintenanceRecord = {
         updatedAt: string;
     }[];
     description: string;
-    const: number;
+    cost: number;
     date: string;
 };
 
@@ -29,6 +30,14 @@ type Car = {
     plateNumber: string;
     brand: string;
     model: string;
+    driver: {
+        _id: string;
+        name: string;
+        phoneNumber: string;
+        nationalId: string;
+        licenseNumber: string;
+        address: string;
+    }[];
     maintenanceHistory: MaintenanceRecord[];
     year: number;
     color: string;

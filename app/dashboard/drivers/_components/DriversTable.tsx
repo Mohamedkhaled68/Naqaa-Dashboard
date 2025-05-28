@@ -1,10 +1,11 @@
-import Pagination from "@/components/Pagination";
 import { useModal } from "@/store/useModal";
 import React from "react";
 import DriverTableRow from "./DriversTableRow";
 
 const DriversTable = ({ drivers }: { drivers: Driver[] }) => {
     const { onOpen } = useModal((state) => state);
+
+    if (!drivers) return;
     return (
         <>
             <div className="w-full grid grid-cols-6 justify-items-center px-[42px] py-[22px] bg-[#fcfcfc]">
@@ -34,7 +35,6 @@ const DriversTable = ({ drivers }: { drivers: Driver[] }) => {
                     onOpen={onOpen}
                 />
             ))}
-            {/* <Pagination /> */}
         </>
     );
 };

@@ -5,7 +5,6 @@ import TanstackProvider from "@/providers/TanstackProvider";
 import Navigationbar from "@/components/Navigationbar";
 import DashNavbar from "@/components/DashNavbar";
 import ModalContainer from "@/components/ModalContainer";
-import { div } from "framer-motion/client";
 
 export default function LayoutContent({
     children,
