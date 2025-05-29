@@ -2,7 +2,7 @@
 import GridContainer from "@/components/GridContainer";
 import OptionsBar from "@/components/OptionsBar";
 import useGetCategories from "@/hooks/categories/useGetCategories";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CategoriesTable from "./_components/CategoriesTable";
 import { useModal } from "@/store/useModal";
 import CreateCategoryForm from "./_components/CreateCategoryForm";
@@ -23,26 +23,12 @@ export type Category = {
 };
 
 const categories = () => {
-    const [categories, setCategories] = useState<Category[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const { mutateAsync: getCategories } = useGetCategories();
+    const { data: categories, isLoading } = useGetCategories();
 
     const { onOpen } = useModal();
 
-    const fetchcategories = async () => {
-        try {
-            const data = await getCategories();
-
-            console.log(data);
-            setCategories(data);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    useEffect(() => {
-        fetchcategories();
-    }, []);
+    if (isLoading || !categories) return null;
     return (
         <GridContainer className="flex flex-col pb-[10px]">
             <OptionsBar

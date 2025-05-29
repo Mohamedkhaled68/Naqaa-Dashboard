@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this import
+import toast from "react-hot-toast";
 
 export type UserRegisterData = {
     name: string;
@@ -28,6 +29,7 @@ const useRegister = () => {
                     },
                 }
             );
+
             // Save token in cookies
             if (response.data.token) {
                 Cookies.set("token", response.data.token, {
@@ -38,16 +40,18 @@ const useRegister = () => {
             }
 
             // Store admin data in Zustand store
-            if (response.data.data.admin) {
-                setAdmin(response.data.data.admin);
+            if (response.data.admin) {
+                setAdmin(response.data.admin);
             }
             return response.data;
         },
         onSuccess: () => {
+            toast.success("Registered Successfully!");
+
             router.push("/dashboard");
         },
         onError: (error: any) => {
-            return error?.response?.data?.message;
+            return toast.error(error?.response?.data?.message);
         },
     });
 };

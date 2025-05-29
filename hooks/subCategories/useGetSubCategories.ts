@@ -2,14 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const useGetCategories = () => {
+const useGetSubCategories = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
 
     return useQuery({
-        queryKey: ["categories", "getCategories"],
+        queryKey: ["subCategories", "getSubCategories"],
         queryFn: async () => {
-            const response = await axios.get(`${baseUrl}/categories`, {
+            const response = await axios.get(`${baseUrl}/subcategories`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -29,4 +29,4 @@ const useGetCategories = () => {
     });
 };
 
-export default useGetCategories;
+export default useGetSubCategories;

@@ -1,15 +1,34 @@
-import { Plus, Trash2, Wrench } from "lucide-react";
-import React from "react";
+import useCreateMaintenanceRecord from "@/hooks/maintenance/useCreateMaintenanceRecord";
+import useDeleteMaintenanceRecord from "@/hooks/maintenance/useDeleteMaintenanceRecord";
+import useGetSubCategories from "@/hooks/subCategories/useGetSubCategories";
+import { Minus, Plus, Trash2, Wrench } from "lucide-react";
+import React, { useEffect, useState } from "react";
+
+type DriverToApi = {
+    _id: string;
+    name: string;
+    phoneNumber: string;
+    nationalId: string;
+    licenseNumber: string;
+    address: string;
+};
+
+type SubCategory = {
+    name: string;
+    category: {
+        name: string;
+        id: string;
+    };
+    description: string;
+    _id: string;
+};
 
 type NM = {
-    description: string;
     cost: string;
     date: string;
-    subCategories: {
-        name: string;
-        categoryName: string;
-        description: string;
-    }[];
+    mechanicCost: string;
+    subCategories: string[];
+    driver: string;
 };
 
 type MaintenanceHistorySectionprops = {
@@ -25,98 +44,133 @@ const MaintenanceHistorySection = ({
     setCar,
     car,
 }: MaintenanceHistorySectionprops) => {
-    const handleSubCategoryUpdate = (
-        index: number,
-        field: string,
-        value: string
-    ) => {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [result, setResult] = useState(null);
+    const { data: subCategories } = useGetSubCategories();
+    const { mutateAsync: createMaintenanceRecord } =
+        useCreateMaintenanceRecord();
+    const { mutateAsync: deleteMaintenanceRecord } =
+        useDeleteMaintenanceRecord();
+
+    const handleAddDriver = (driverId: string) => {
         setNewMaintenance((prev) => ({
             ...prev,
-            subCategories: prev.subCategories.map((subCat, i) =>
-                i === index ? { ...subCat, [field]: value } : subCat
+            driver: driverId,
+        }));
+    };
+
+    const handleRemoveDriver = () => {
+        setNewMaintenance((prev) => ({
+            ...prev,
+            driver: "",
+        }));
+    };
+
+    const handleAddSubCategory = (subCategoryId: string) => {
+        setNewMaintenance((prev) => ({
+            ...prev,
+            subCategories: [...prev.subCategories, subCategoryId],
+        }));
+    };
+
+    const handleRemoveSubCategory = (subCategoryId: string) => {
+        setNewMaintenance((prev) => ({
+            ...prev,
+            subCategories: prev.subCategories.filter(
+                (sub) => sub !== subCategoryId
             ),
         }));
     };
 
-    const handleAddSubCategory = () => {
-        setNewMaintenance((prev) => ({
-            ...prev,
-            subCategories: [
-                ...prev.subCategories,
-                {
-                    name: "",
-                    categoryName: "",
-                    description: "",
-                },
-            ],
-        }));
-    };
-
-    const handleRemoveSubCategory = (index: number) => {
-        setNewMaintenance((prev) => ({
-            ...prev,
-            subCategories: prev.subCategories.filter((_, i) => i !== index),
-        }));
-    };
-
-    const handleAddMaintenance = () => {
+    const handleAddMaintenance = async () => {
         if (
-            newMaintenance.description &&
+            newMaintenance.driver &&
             newMaintenance.cost &&
             newMaintenance.date &&
             car.driver.length > 0
         ) {
-            const maintenance = {
-                _id: Date.now().toString(),
+            function getDescriptionsString(
+                subcategoriesId: string[],
+                subcategories: SubCategory[]
+            ) {
+                return subcategories
+                    .filter((subcat) => subcategoriesId.includes(subcat._id))
+                    .map((subcat) => subcat.description)
+                    .join(" - ");
+            }
+            function convertToISOStringWithCurrentTime(dateStr: string) {
+                const now = new Date();
+                const [year, month, day] = dateStr.split("-").map(Number);
+
+                const fullDate = new Date(
+                    Date.UTC(
+                        year,
+                        month - 1,
+                        day,
+                        now.getUTCHours(),
+                        now.getUTCMinutes(),
+                        now.getUTCSeconds(),
+                        now.getUTCMilliseconds()
+                    )
+                );
+
+                return fullDate.toISOString();
+            }
+            const description = getDescriptionsString(
+                newMaintenance.subCategories,
+                subCategories
+            );
+
+            console.log({
+                ...newMaintenance,
                 car: car._id,
-                driver: car.driver[0],
-                subCategories: newMaintenance.subCategories
-                    .filter((sub) => sub.name && sub.categoryName)
-                    .map((sub) => ({
-                        _id: Date.now().toString() + Math.random(),
-                        name: sub.name,
-                        category: {
-                            _id: Date.now().toString() + Math.random(),
-                            name: sub.categoryName,
-                        },
-                        description: sub.description,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                    })),
-                description: newMaintenance.description,
-                cost: parseFloat(newMaintenance.cost) || 0,
-                date: newMaintenance.date,
-            };
+                description,
+                date: convertToISOStringWithCurrentTime(newMaintenance.date),
+            });
+            const { data: maintenanceRecordRes } =
+                await createMaintenanceRecord({
+                    ...newMaintenance,
+                    car: car._id,
+                    description,
+                    date: convertToISOStringWithCurrentTime(
+                        newMaintenance.date
+                    ),
+                });
 
             setCar({
                 ...car,
-                maintenanceHistory: [...car.maintenanceHistory, maintenance],
+                maintenanceHistory: [
+                    ...car.maintenanceHistory,
+                    { ...maintenanceRecordRes, car: car._id },
+                ],
             });
 
             // Reset form
             setNewMaintenance({
-                description: "",
                 cost: "",
+                mechanicCost: "",
                 date: "",
-                subCategories: [
-                    {
-                        name: "",
-                        categoryName: "",
-                        description: "",
-                    },
-                ],
+                subCategories: [],
+                driver: "",
             });
         }
     };
 
-    const handleRemoveMaintenance = (id: string) => {
+    const handleRemoveMaintenance = async (id: string) => {
         setCar({
             ...car,
             maintenanceHistory: car.maintenanceHistory.filter(
                 (item) => item._id !== id
             ),
         });
+
+        await deleteMaintenanceRecord(id);
     };
+
+    useEffect(() => {
+        if (searchTerm) {
+        }
+    }, [searchTerm]);
 
     return (
         <div className="space-y-6">
@@ -136,27 +190,26 @@ const MaintenanceHistorySection = ({
 
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Description
+                                Mechanic Cost ($)
                             </label>
-                            <textarea
-                                value={newMaintenance.description}
+                            <input
+                                type="number"
+                                step="0.01"
+                                value={newMaintenance.mechanicCost}
                                 onChange={(e) =>
                                     setNewMaintenance((prev) => ({
                                         ...prev,
-                                        description: e.target.value,
+                                        mechanicCost: e.target.value,
                                     }))
                                 }
-                                placeholder="Describe the maintenance work performed..."
-                                rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Total Cost ($)
+                                Maintenance Cost ($)
                             </label>
                             <input
                                 type="number"
@@ -171,7 +224,6 @@ const MaintenanceHistorySection = ({
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
-
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Date
@@ -190,96 +242,175 @@ const MaintenanceHistorySection = ({
                         </div>
                     </div>
 
+                    {/* Drivers */}
+                    <div>
+                        <div className="flex justify-between items-center mb-3">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Drivers
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-5">
+                            {car.driver?.map((driver: DriverToApi) => {
+                                const isSelected =
+                                    newMaintenance.driver === driver._id;
+                                return (
+                                    <div
+                                        key={driver._id}
+                                        className={`rounded-sm ${
+                                            isSelected
+                                                ? "bg-green-500"
+                                                : "bg-white"
+                                        } transition-all duration-300 shadow-md p-4  flex justify-between items-center`}
+                                    >
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <span
+                                                        className={`font-medium ${
+                                                            isSelected
+                                                                ? "text-white"
+                                                                : "text-gray-800"
+                                                        }`}
+                                                    >
+                                                        {driver.name}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <p
+                                                className={`text-sm ${
+                                                    isSelected
+                                                        ? "text-white"
+                                                        : "text-gray-600"
+                                                }  mt-1`}
+                                            >
+                                                {driver.licenseNumber}
+                                            </p>
+                                        </div>
+                                        {isSelected ? (
+                                            <Minus
+                                                onClick={() =>
+                                                    handleRemoveDriver()
+                                                }
+                                                className="hover:bg-black/10 text-white transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
+                                            />
+                                        ) : (
+                                            <Plus
+                                                onClick={() =>
+                                                    handleAddDriver(driver._id)
+                                                }
+                                                className="hover:bg-slate-200 transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     {/* Sub Categories */}
                     <div>
                         <div className="flex justify-between items-center mb-3">
                             <label className="block text-sm font-medium text-gray-700">
                                 Sub Categories
                             </label>
-                            <button
-                                onClick={handleAddSubCategory}
-                                className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Add Category
-                            </button>
+                            <input
+                                // onChange={(e) => {
+                                //     setSearchTerm(e.target.value.trim());
+                                // }}
+                                // value={searchTerm}
+                                className="py-2 pl-[15px] pr-[10px] rounded-[5px] border border-[#D8D6DE] placeholder:text-[#B9B9C3] text-[12px] font-normal text-[#6E6B7B] outline-none"
+                                type="text"
+                                id="search"
+                                placeholder="Search..."
+                            />
                         </div>
 
-                        <div className="space-y-3">
-                            {newMaintenance.subCategories.map(
-                                (subCat, index) => (
+                        <div className="grid grid-cols-3 gap-5">
+                            {subCategories?.map((subCategory: SubCategory) => {
+                                const isSelected =
+                                    newMaintenance.subCategories.some(
+                                        (sub) => sub === subCategory._id
+                                    );
+                                return (
                                     <div
-                                        key={index}
-                                        className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 border border-gray-200 rounded-md"
+                                        key={subCategory.name}
+                                        className={`rounded-sm ${
+                                            isSelected
+                                                ? "bg-green-500"
+                                                : "bg-white"
+                                        } transition-all duration-300 shadow-md p-4  flex justify-between items-center`}
                                     >
-                                        <div>
-                                            <input
-                                                type="text"
-                                                placeholder="Category Name (e.g., Oil Change)"
-                                                value={subCat.name}
-                                                onChange={(e) =>
-                                                    handleSubCategoryUpdate(
-                                                        index,
-                                                        "name",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <input
-                                                type="text"
-                                                placeholder="Main Category (e.g., Engine Maintenance)"
-                                                value={subCat.categoryName}
-                                                onChange={(e) =>
-                                                    handleSubCategoryUpdate(
-                                                        index,
-                                                        "categoryName",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                placeholder="Description (optional)"
-                                                value={subCat.description}
-                                                onChange={(e) =>
-                                                    handleSubCategoryUpdate(
-                                                        index,
-                                                        "description",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                            {newMaintenance.subCategories
-                                                .length > 1 && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleRemoveSubCategory(
-                                                            index
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <span
+                                                        className={`font-medium ${
+                                                            isSelected
+                                                                ? "text-white"
+                                                                : "text-gray-800"
+                                                        }`}
+                                                    >
+                                                        {subCategory.name}
+                                                    </span>
+                                                    <span
+                                                        className={`${
+                                                            isSelected
+                                                                ? "text-white"
+                                                                : "text-gray-600"
+                                                        } ml-2`}
+                                                    >
+                                                        (
+                                                        {
+                                                            subCategory.category
+                                                                .name
+                                                        }
                                                         )
-                                                    }
-                                                    className="text-red-600 hover:text-red-800 p-2"
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {subCategory.description && (
+                                                <p
+                                                    className={`text-sm ${
+                                                        isSelected
+                                                            ? "text-white"
+                                                            : "text-gray-600"
+                                                    }  mt-1`}
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                    {subCategory.description}
+                                                </p>
                                             )}
                                         </div>
+                                        {isSelected ? (
+                                            <Minus
+                                                onClick={() =>
+                                                    handleRemoveSubCategory(
+                                                        subCategory._id
+                                                    )
+                                                }
+                                                className="hover:bg-black/10 text-white transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
+                                            />
+                                        ) : (
+                                            <Plus
+                                                onClick={() =>
+                                                    handleAddSubCategory(
+                                                        subCategory._id
+                                                    )
+                                                }
+                                                className="hover:bg-slate-200 transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
+                                            />
+                                        )}
                                     </div>
-                                )
-                            )}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
 
                 <button
                     onClick={handleAddMaintenance}
-                    className="mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
+                    className="cursor-pointer mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
                     Add Maintenance Record
@@ -324,6 +455,12 @@ const MaintenanceHistorySection = ({
                                 <div>
                                     <span className="font-medium">Cost:</span> $
                                     {record.cost}
+                                </div>
+                                <div>
+                                    <span className="font-medium">
+                                        Mechanic Cost:
+                                    </span>{" "}
+                                    ${record.mechanicCost}
                                 </div>
                                 <div>
                                     <span className="font-medium">Date:</span>{" "}

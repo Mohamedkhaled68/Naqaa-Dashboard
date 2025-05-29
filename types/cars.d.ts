@@ -1,6 +1,7 @@
 type MaintenanceRecord = {
     _id: string;
     car: string;
+    mechanicCost: number;
     driver: {
         _id: string;
         name: string;

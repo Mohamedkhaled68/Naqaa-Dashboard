@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/store/admin/useAdminStore";
+import toast from "react-hot-toast";
 
 export type UserLoginData = {
     email: string;
@@ -22,6 +23,7 @@ const useLogin = () => {
                     "Content-Type": "application/json",
                 },
             });
+
             // Save token in cookies
             if (response.data.token) {
                 Cookies.set("token", response.data.token, {
@@ -31,18 +33,18 @@ const useLogin = () => {
                 });
             }
 
-            
             // Store admin data in Zustand store
-            if (response.data.data.admin) {
-                setAdmin(response.data.data.admin);
+            if (response.data.admin) {
+                setAdmin(response.data.admin);
             }
             return response.data;
         },
         onSuccess: () => {
+            toast.success("Logged in Successfully!");
             router.push("/dashboard");
         },
         onError: (error: any) => {
-            return error?.response?.data?.message;
+            return toast.error(error?.response?.data?.message);
         },
     });
 };

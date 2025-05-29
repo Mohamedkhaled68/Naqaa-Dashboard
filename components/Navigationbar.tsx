@@ -6,6 +6,7 @@ import { BiCategory } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAdminStore } from "@/store/admin/useAdminStore";
+import toast from "react-hot-toast";
 const tabs: any = [
     {
         title: "dashboard",
@@ -40,6 +41,7 @@ const Navigationbar = () => {
         // Clear admin store
         clearAdmin();
 
+        toast.success("Logged out Successfully!");
         // Redirect to login
         router.push("/login");
     };

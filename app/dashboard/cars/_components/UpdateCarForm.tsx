@@ -7,24 +7,25 @@ import DriversSection from "./updateFormComponents/DriversSection";
 import useUpdateCar from "@/hooks/cars/useUpdateCar";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 
+type NM = {
+    cost: string;
+    date: string;
+    mechanicCost: string;
+    subCategories: string[];
+    driver: string;
+};
+
 const UpdatCarForm = () => {
     const { car, setCar, clearCar } = useCurrentCarStore((state) => state);
     const [activeSection, setActiveSection] = useState("car");
     const { mutateAsync: updateCar } = useUpdateCar();
 
-    // Initial car data based on the provided types
-
-    const [newMaintenance, setNewMaintenance] = useState({
-        description: "",
+    const [newMaintenance, setNewMaintenance] = useState<NM>({
         cost: "",
+        mechanicCost: "",
         date: "",
-        subCategories: [
-            {
-                name: "",
-                categoryName: "",
-                description: "",
-            },
-        ],
+        subCategories: [],
+        driver: "",
     });
 
     const handleCarUpdate = (field: string, value: string) => {
@@ -74,7 +75,7 @@ const UpdatCarForm = () => {
                     <div className="flex border-b border-slate-200">
                         <button
                             onClick={() => setActiveSection("car")}
-                            className={`flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
+                            className={`outline-none flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
                                 activeSection === "car"
                                     ? "bg-slate-100 text-[#000] border-b-2 border-[#333]"
                                     : "text-gray-600 hover:bg-slate-50"
@@ -85,7 +86,7 @@ const UpdatCarForm = () => {
                         </button>
                         <button
                             onClick={() => setActiveSection("drivers")}
-                            className={`flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
+                            className={`outline-none flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
                                 activeSection === "drivers"
                                     ? "bg-slate-100 text-[#000] border-b-2 border-[#333]"
                                     : "text-gray-600 hover:bg-slate-50"
@@ -96,7 +97,7 @@ const UpdatCarForm = () => {
                         </button>
                         <button
                             onClick={() => setActiveSection("maintenance")}
-                            className={`flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
+                            className={`outline-none flex-1 px-6 cursor-pointer py-3 text-center font-medium transition-colors ${
                                 activeSection === "maintenance"
                                     ? "bg-slate-100 text-[#000] border-b-2 border-[#333]"
                                     : "text-gray-600 hover:bg-slate-50"

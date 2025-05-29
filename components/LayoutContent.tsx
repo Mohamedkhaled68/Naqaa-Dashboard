@@ -5,6 +5,7 @@ import TanstackProvider from "@/providers/TanstackProvider";
 import Navigationbar from "@/components/Navigationbar";
 import DashNavbar from "@/components/DashNavbar";
 import ModalContainer from "@/components/ModalContainer";
+import { Toaster } from "react-hot-toast";
 
 export default function LayoutContent({
     children,
@@ -19,6 +20,7 @@ export default function LayoutContent({
         return (
             <div className="w-screen">
                 <TanstackProvider>{children}</TanstackProvider>
+                <Toaster position="top-center" />
             </div>
         );
     }
@@ -31,6 +33,7 @@ export default function LayoutContent({
                 {children}
             </main>
             <ModalContainer />
+            <Toaster position="top-center" />
         </TanstackProvider>
     );
 }
