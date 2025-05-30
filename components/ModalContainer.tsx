@@ -84,16 +84,16 @@ const ModalContainer = () => {
                         exit={{ opacity: 0, scale: 0 }}
                         className="h-[90%]"
                     >
-                        <GridContainer
+                        <div
                             ref={contentRef}
-                            className={`px-[76px] py-[39px] min-w-[70%] mx-auto h-full overflow-y-scroll transition-all duration-300 bg-transparent ${
+                            className={`min-w-[70%] mx-auto h-full overflow-y-scroll transition-all duration-300 bg-transparent ${
                                 isScrolling
                                     ? "scrollbar-visible"
                                     : "scrollbar-hidden"
                             }`}
                         >
                             {modalContent}
-                        </GridContainer>
+                        </div>
                     </motion.div>
                 </motion.div>
             )}

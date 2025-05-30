@@ -3,17 +3,22 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-const useDeleteSubCategories = () => {
+const useCreateSubCategories = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
     const queryClient = useQueryClient();
     const router = useRouter();
 
     return useMutation({
-        mutationKey: ["subCategories", "DeleteSubCategories"],
-        mutationFn: async (id: string) => {
-            const response = await axios.delete(
-                `${baseUrl}/subcategories/${id}`,
+        mutationKey: ["subCategories", "createSubCategories"],
+        mutationFn: async (data: {
+            name: string;
+            category: string;
+            description: string;
+        }) => {
+            const response = await axios.post(
+                `${baseUrl}/subcategories`,
+                data,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -35,4 +40,4 @@ const useDeleteSubCategories = () => {
     });
 };
 
-export default useDeleteSubCategories;
+export default useCreateSubCategories;

@@ -1,12 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation"; // Add this import
 
 const useDeleteCategory = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
-    const router = useRouter();
     const queryClient = useQueryClient(); // Add this
 
     return useMutation({
@@ -25,8 +23,6 @@ const useDeleteCategory = () => {
             queryClient.invalidateQueries({
                 queryKey: ["categories", "getCategories"],
             });
-
-            // router.push("/dashboard/categories");
         },
 
         onError: (error: any) => {

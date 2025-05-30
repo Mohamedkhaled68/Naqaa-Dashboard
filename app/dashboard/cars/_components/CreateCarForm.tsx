@@ -133,7 +133,7 @@ const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
 
     return (
         // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="w-3xl">
+        <div className="w-3xl bg-white p-5 rounded-xl ">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200">
                 <div className="flex items-center space-x-3">

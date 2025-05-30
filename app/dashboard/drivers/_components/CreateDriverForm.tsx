@@ -122,7 +122,7 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
     };
 
     return (
-        <div className="min-h-screen p-4">
+        <div className="min-h-screen">
             <div className="w-3xl mx-auto">
                 <div className="bg-white rounded-2xl shadow-xl p-8">
                     <div className="text-center mb-8">

@@ -38,7 +38,9 @@ export default function LayoutContent({
             <ModalContainer />
             <Toaster
                 position="top-center"
-                containerStyle={{ zIndex: "999999" }}
+                containerStyle={{
+                    zIndex: "999999",
+                }}
             />
         </TanstackProvider>
     );

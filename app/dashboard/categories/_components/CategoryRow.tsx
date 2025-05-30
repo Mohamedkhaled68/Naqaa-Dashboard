@@ -3,6 +3,8 @@ import { ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 import useDeleteCategory from "@/hooks/categories/useDeleteCategory";
 import toast from "react-hot-toast";
 import useDeleteSubCategories from "@/hooks/subCategories/useDeleteSubCategories";
+import CreateSubcategoryForm from "./CreateSubCategoriesForm";
+import { useModal } from "@/store/useModal";
 
 // Mock Category type - replace with your actual type
 type Category = {
@@ -11,6 +13,7 @@ type Category = {
     subCategories: Array<{
         _id: string;
         name: string;
+        description: string;
     }>;
 };
 
@@ -28,6 +31,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
     const { mutateAsync: deleteCategory } = useDeleteCategory();
     const { mutateAsync: deleteSubCategory } = useDeleteSubCategories();
+    const { onOpen } = useModal();
 
     const confirmDelete = async (): Promise<void> => {
         setIsDeleting(true);
@@ -96,9 +100,14 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                         key={sub._id}
                                         className="flex items-center justify-between"
                                     >
-                                        <div className="py-2 text-gray-700 flex items-center">
-                                            <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                                            {sub.name}
+                                        <div className="flex items-center gap-5">
+                                            <div className="py-2 text-gray-700 flex items-center">
+                                                <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                                                {sub.name}
+                                            </div>
+                                            <div className="py-2 text-gray-600 italic text-sm">
+                                                {sub.description}
+                                            </div>
                                         </div>
                                         {/* Delete Button */}
                                         <button
@@ -112,10 +121,42 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                         </button>
                                     </div>
                                 ))}
+                                <button
+                                    onClick={() => {
+                                        onOpen(
+                                            <CreateSubcategoryForm
+                                                parentCategory={{
+                                                    name: category.name,
+                                                    id: category._id,
+                                                }}
+                                            />
+                                        );
+                                    }}
+                                    className="cursor-pointer py-2 px-[18px] mt-2 rounded-[8px] bg-[#333] text-[12px] font-normal text-[#fff] outline-none hover:bg-[#222] duration-300"
+                                >
+                                    Add SubCategories
+                                </button>
                             </div>
                         ) : (
-                            <div className="text-sm text-gray-500 italic py-2">
-                                No subcategories
+                            <div className="flex items-center gap-5 py-3">
+                                <div className="text-sm text-gray-500 italic py-2">
+                                    No subcategories
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        onOpen(
+                                            <CreateSubcategoryForm
+                                                parentCategory={{
+                                                    name: category.name,
+                                                    id: category._id,
+                                                }}
+                                            />
+                                        );
+                                    }}
+                                    className="cursor-pointer py-2 px-[18px] rounded-[8px] bg-[#333] text-[12px] font-normal text-[#fff] outline-none hover:bg-[#222] duration-300"
+                                >
+                                    Add SubCategories
+                                </button>
                             </div>
                         )}
                     </div>

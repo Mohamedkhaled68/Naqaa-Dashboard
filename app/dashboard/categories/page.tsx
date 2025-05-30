@@ -27,6 +27,8 @@ const categories = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: categories, isLoading } = useGetCategories(searchTerm);
 
+    console.log(categories);
+
     const { onOpen } = useModal();
 
     return (
