@@ -1,28 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation"; // Add this import
+import { useRouter } from "next/navigation";
 
-export type CreateCarData = {
-    plateNumber: string;
-    brand: string;
-    model: string;
-    year: number;
-    color: string;
-    // driver: string;
-    status: string;
-};
-
-const useCreateCar = () => {
+const useDeleteDriver = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
+    const queryClient = useQueryClient();
     const router = useRouter();
-    const queryClient = useQueryClient(); // Add this
 
     return useMutation({
-        mutationKey: ["cars", "CreateCars"],
-        mutationFn: async (data: CreateCarData) => {
-            const response = await axios.post(`${baseUrl}/cars`, data, {
+        mutationKey: ["drivers", "deleteDriver"],
+        mutationFn: async (id: string) => {
+            const response = await axios.delete(`${baseUrl}/drivers/${id}`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -33,15 +23,15 @@ const useCreateCar = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["cars", "getCars"],
-                exact: true,
+                queryKey: ["drivers", "getDrivers"],
             });
-        },
 
+            router.push("/dashboard/drivers");
+        },
         onError: (error: any) => {
             return error?.response?.data?.message;
         },
     });
 };
 
-export default useCreateCar;
+export default useDeleteDriver;

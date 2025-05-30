@@ -86,7 +86,7 @@ const ModalContainer = () => {
                     >
                         <GridContainer
                             ref={contentRef}
-                            className={`px-[76px] py-[39px] min-w-[70%] mx-auto h-full overflow-y-scroll transition-all duration-300 ${
+                            className={`px-[76px] py-[39px] min-w-[70%] mx-auto h-full overflow-y-scroll transition-all duration-300 bg-transparent ${
                                 isScrolling
                                     ? "scrollbar-visible"
                                     : "scrollbar-hidden"

@@ -5,9 +5,12 @@ import React, { useState } from "react";
 import CarsTable from "./_components/CarsTable";
 import { useModal } from "@/store/useModal";
 import CreateCarForm from "./_components/CreateCarForm";
+import useGetCars from "@/hooks/cars/useGetCars";
+import { ClipLoader } from "react-spinners";
 
 const cars = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const { data: cars, isLoading } = useGetCars(searchTerm);
     const { onClose, onOpen } = useModal((state) => state);
 
     return (
@@ -26,7 +29,19 @@ const cars = () => {
                     </button>
                 }
             />
-            <CarsTable />
+            {isLoading || !cars ? (
+                <div className="text-xl font-bold flex justify-center items-center text-center p-6">
+                    <ClipLoader size={50} />
+                </div>
+            ) : cars?.length > 0 ? (
+                <CarsTable cars={cars} />
+            ) : (
+                <>
+                    <div className="text text-center text-gray-500 text-sm py-5">
+                        No cars available at the moment.
+                    </div>
+                </>
+            )}
         </GridContainer>
     );
 };

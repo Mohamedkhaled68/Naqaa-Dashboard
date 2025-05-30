@@ -1,6 +1,18 @@
-import React from "react";
-import { Category } from "../page";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import useDeleteCategory from "@/hooks/categories/useDeleteCategory";
+import toast from "react-hot-toast";
+import useDeleteSubCategories from "@/hooks/subCategories/useDeleteSubCategories";
+
+// Mock Category type - replace with your actual type
+type Category = {
+    _id: string;
+    name: string;
+    subCategories: Array<{
+        _id: string;
+        name: string;
+    }>;
+};
 
 type CategoryRowProps = {
     category: Category;
@@ -8,47 +20,108 @@ type CategoryRowProps = {
     toggleAccordion: (id: string) => void;
 };
 
-const CategoryRow = ({
+const CategoryRow: React.FC<CategoryRowProps> = ({
     category,
     openCategoryId,
     toggleAccordion,
-}: CategoryRowProps) => {
-    return (
-        <div
-            key={category._id}
-            className="border border-slate-50 shadow-md rounded mb-2  cursor-pointer"
-        >
-            <div className="w-full flex items-center justify-between pr-8 cursor-pointer">
-                <button
-                    className="w-full text-left p-4 font-medium transition cursor-pointer"
-                    onClick={() => toggleAccordion(category._id)}
-                >
-                    {category.name}
-                </button>
+}) => {
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
+    const { mutateAsync: deleteCategory } = useDeleteCategory();
+    const { mutateAsync: deleteSubCategory } = useDeleteSubCategories();
 
-                {openCategoryId === category._id ? (
-                    <ChevronUp className="text-slate-600" />
-                ) : (
-                    <ChevronDown className="text-slate-600" />
+    const confirmDelete = async (): Promise<void> => {
+        setIsDeleting(true);
+        try {
+            await deleteCategory(category._id);
+            toast.success("Category deleted successfully!");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+    const confirmDeleteSubs = async (subId: string): Promise<void> => {
+        setIsDeleting(true);
+        try {
+            await deleteSubCategory(subId);
+            toast.success("SubCategory deleted successfully!");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    return (
+        <>
+            <div className="border border-slate-200 shadow-md rounded-lg mb-2 overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="w-full flex items-center justify-between bg-white">
+                    <button
+                        className="flex-1 text-left p-4 font-medium transition hover:bg-gray-50 cursor-pointer"
+                        onClick={() => toggleAccordion(category._id)}
+                    >
+                        {category.name}
+                    </button>
+
+                    <div className="flex items-center pr-4 space-x-2">
+                        {/* Delete Button */}
+                        <button
+                            onClick={confirmDelete}
+                            className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                            title="Delete category"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+
+                        {/* Accordion Toggle */}
+                        <button
+                            onClick={() => toggleAccordion(category._id)}
+                            className="p-1"
+                        >
+                            {openCategoryId === category._id ? (
+                                <ChevronUp className="text-slate-600 w-5 h-5" />
+                            ) : (
+                                <ChevronDown className="text-slate-600 w-5 h-5" />
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {openCategoryId === category._id && (
+                    <div className="pl-6 pr-4 pb-4 bg-gray-50 border-t border-gray-100">
+                        {category.subCategories.length > 0 ? (
+                            <div className="space-y-1">
+                                {category.subCategories.map((sub) => (
+                                    <div
+                                        key={sub._id}
+                                        className="flex items-center justify-between"
+                                    >
+                                        <div className="py-2 text-gray-700 flex items-center">
+                                            <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                                            {sub.name}
+                                        </div>
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() =>
+                                                confirmDeleteSubs(sub._id)
+                                            }
+                                            className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                            title="Delete category"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-gray-500 italic py-2">
+                                No subcategories
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
-
-            {openCategoryId === category._id && (
-                <div className="pl-6 pr-4 pb-4">
-                    {category.subCategories.length > 0 ? (
-                        category.subCategories.map((sub) => (
-                            <div key={sub._id} className="py-1 text-gray-700">
-                                • {sub.name}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-sm text-gray-500 italic">
-                            No subcategories
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+        </>
     );
 };
 

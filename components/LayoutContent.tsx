@@ -20,7 +20,10 @@ export default function LayoutContent({
         return (
             <div className="w-screen">
                 <TanstackProvider>{children}</TanstackProvider>
-                <Toaster position="top-center" />
+                <Toaster
+                    position="top-center"
+                    containerStyle={{ zIndex: "999999" }}
+                />
             </div>
         );
     }
@@ -33,7 +36,10 @@ export default function LayoutContent({
                 {children}
             </main>
             <ModalContainer />
-            <Toaster position="top-center" />
+            <Toaster
+                position="top-center"
+                containerStyle={{ zIndex: "999999" }}
+            />
         </TanstackProvider>
     );
 }

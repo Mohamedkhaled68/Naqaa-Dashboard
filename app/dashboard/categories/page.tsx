@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import CategoriesTable from "./_components/CategoriesTable";
 import { useModal } from "@/store/useModal";
 import CreateCategoryForm from "./_components/CreateCategoryForm";
+import { ClipLoader } from "react-spinners";
 
 type SubCategory = {
     _id: string;
@@ -24,11 +25,10 @@ export type Category = {
 
 const categories = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const { data: categories, isLoading } = useGetCategories();
+    const { data: categories, isLoading } = useGetCategories(searchTerm);
 
     const { onOpen } = useModal();
 
-    if (isLoading || !categories) return null;
     return (
         <GridContainer className="flex flex-col pb-[10px]">
             <OptionsBar
@@ -45,7 +45,19 @@ const categories = () => {
                     </button>
                 }
             />
-            <CategoriesTable categories={categories} />
+            {isLoading || !categories ? (
+                <div className="text-xl font-bold flex justify-center items-center text-center p-6">
+                    <ClipLoader size={50} />
+                </div>
+            ) : categories?.length > 0 ? (
+                <CategoriesTable categories={categories} />
+            ) : (
+                <>
+                    <div className="text text-center text-gray-500 text-sm py-5">
+                        No categories available at the moment.
+                    </div>
+                </>
+            )}
         </GridContainer>
     );
 };

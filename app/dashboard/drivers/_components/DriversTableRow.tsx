@@ -1,3 +1,7 @@
+import useGetCarById from "@/hooks/cars/useGetCarById";
+import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
+import { useCurrentDriverStore } from "@/store/drivers/useCurrentDriverStore";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export type DriverTableRowProps = {
@@ -6,6 +10,24 @@ export type DriverTableRowProps = {
 };
 
 const DriverTableRow = ({ driver }: DriverTableRowProps) => {
+    const router = useRouter();
+    const { setCar } = useCurrentCarStore((state) => state);
+    const { setDriver } = useCurrentDriverStore((state) => state);
+    const { data: car, isLoading } = useGetCarById(driver?.car?._id);
+
+    const carDetailsNavigation = () => {
+        if (!isLoading) {
+            setCar(car);
+            router.push(`/dashboard/cars/${driver?.car?._id}`);
+        }
+    };
+    const driverDetailsNavigation = () => {
+        if (!isLoading) {
+            setDriver(driver);
+            router.push(`/dashboard/drivers/${driver?._id}`);
+        }
+    };
+
     return (
         <div className="w-full grid grid-cols-6 justify-items-center px-[42px] py-[22px]">
             <div className="text-[#000] text-[14px] font-[400]">
@@ -25,7 +47,16 @@ const DriverTableRow = ({ driver }: DriverTableRowProps) => {
                 {driver.phoneNumber}
             </div>
             <div className="more">
-                <button className="py-[8px] px-[12px] rounded-[8px] bg-[#1d1d1d] text-white outline-none cursor-pointer hover:bg-primary-default/80 transition duration-300">
+                {/* <button
+                    onClick={carDetailsNavigation}
+                    className="py-[8px] px-[12px] rounded-[8px] bg-[#1d1d1d] text-white outline-none cursor-pointer hover:bg-primary-default/80 transition duration-300"
+                >
+                    More
+                </button> */}
+                <button
+                    onClick={driverDetailsNavigation}
+                    className="py-[8px] px-[12px] rounded-[8px] bg-[#1d1d1d] text-white outline-none cursor-pointer hover:bg-primary-default/80 transition duration-300"
+                >
                     More
                 </button>
             </div>

@@ -1,10 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 const useCreateCategory = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
+    const queryClient = useQueryClient(); // Add this
 
     return useMutation({
         mutationKey: ["categories", "CreateCategory"],
@@ -16,6 +17,12 @@ const useCreateCategory = () => {
                 },
             });
             return response.data.data;
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["categories", "getCategories"],
+            });
         },
 
         onError: (error: any) => {

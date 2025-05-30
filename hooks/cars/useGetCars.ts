@@ -2,22 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const useGetCars = () => {
+const useGetCars = (search: string = "") => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
 
     return useQuery({
-        queryKey: ["cars", "getCars"],
+        queryKey: ["cars", "getCars", search],
         queryFn: async () => {
-            const response = await axios.get(`${baseUrl}/cars`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            console.log(response.data.data);
-
+            const response = await axios.get(
+                `${baseUrl}/cars?search=${search}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             return response.data.data;
         },
 
