@@ -2,10 +2,21 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this import
+import toast from "react-hot-toast";
+
+type MaintenanceRecord = {
+    car: string;
+    driver: string;
+    subCategories: string[];
+    description: string;
+    cost: number;
+    mechanicCost: number;
+    date: string; // ISO date string, can be converted to Date when needed
+};
 
 type Props = {
     id: string;
-    data: Car;
+    data: MaintenanceRecord;
 };
 
 const useUpdateMaintenanceRecord = () => {
@@ -17,25 +28,28 @@ const useUpdateMaintenanceRecord = () => {
     return useMutation({
         mutationKey: ["Maintenance", "updateMaintenance"],
         mutationFn: async ({ id, data }: Props) => {
-            const response = await axios.put(`${baseUrl}/cars/${id}`, data, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            return response.data.data;
+            const response = await axios.put(
+                `${baseUrl}/maintenance/${id}`,
+                data,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            return response.data;
         },
 
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["cars"],
-            });
-
-            router.push("/dashboard/cars");
+            toast.success("Maintenance record updated successfully!");
+            // queryClient.invalidateQueries({
+            //     queryKey: ["cars"],
+            // });
         },
 
         onError: (error: any) => {
-            return error?.response?.data?.message;
+            toast.error(error?.response?.data?.message);
         },
     });
 };
