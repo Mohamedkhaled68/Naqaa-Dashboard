@@ -34,7 +34,6 @@ const useCreateCar = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["cars", "getCars"],
-                exact: true,
             });
         },
 

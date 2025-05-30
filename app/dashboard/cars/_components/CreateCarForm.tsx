@@ -102,8 +102,6 @@ const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
 
         try {
             setIsLoading(true);
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
             await createCar({
                 ...initialValues,
                 year: Number(initialValues.year),

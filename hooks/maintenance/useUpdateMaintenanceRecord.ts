@@ -42,10 +42,10 @@ const useUpdateMaintenanceRecord = () => {
         },
 
         onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["cars", "drivers", "getDriverMaintenance"],
+            });
             toast.success("Maintenance record updated successfully!");
-            // queryClient.invalidateQueries({
-            //     queryKey: ["cars"],
-            // });
         },
 
         onError: (error: any) => {

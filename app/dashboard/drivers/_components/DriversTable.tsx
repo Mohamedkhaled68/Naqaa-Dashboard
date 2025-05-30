@@ -25,7 +25,7 @@ const DriversTable = ({ drivers }: { drivers: Driver[] }) => {
                     Phone Number
                 </div>
                 <div className="text-[#4e4e4e] text-[14px] font-[700]">
-                    Car details
+                    Driver details
                 </div>
             </div>
             {drivers.map((driver) => (

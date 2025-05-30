@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation"; // Add this import
 import toast from "react-hot-toast";
+import { driverMaintenanceKeys } from "../drivers/useGetDriverMaintenance";
 
 interface MaintenanceRecord {
     cost: string;
@@ -32,10 +33,10 @@ const useCreateMaintenanceRecord = () => {
         },
 
         onSuccess: () => {
-            toast.success("Maintenance Record Created Successfully!");
             queryClient.invalidateQueries({
-                queryKey: ["cars"],
+                queryKey: ["cars", ...driverMaintenanceKeys.all],
             });
+            toast.success("Maintenance Record Created Successfully!");
         },
 
         onError: (error: any) => {

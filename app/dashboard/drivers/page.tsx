@@ -12,6 +12,8 @@ const drivers = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: drivers, isLoading } = useGetDrivers(searchTerm);
 
+    console.log(drivers);
+
     const { onOpen, onClose } = useModal();
 
     return (
