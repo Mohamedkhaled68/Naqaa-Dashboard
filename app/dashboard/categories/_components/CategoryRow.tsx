@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import useDeleteSubCategories from "@/hooks/subCategories/useDeleteSubCategories";
 import CreateSubcategoryForm from "./CreateSubCategoriesForm";
 import { useModal } from "@/store/useModal";
+import ShowAndCreateFields from "./ShowAndCreateFields";
 
 // Mock Category type - replace with your actual type
 type Category = {
@@ -109,16 +110,31 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                                 {sub.description}
                                             </div>
                                         </div>
-                                        {/* Delete Button */}
-                                        <button
-                                            onClick={() =>
-                                                confirmDeleteSubs(sub._id)
-                                            }
-                                            className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                            title="Delete category"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() =>
+                                                    onOpen(
+                                                        <ShowAndCreateFields
+                                                            id={sub._id}
+                                                        />
+                                                    )
+                                                }
+                                                className="cursor-pointer py-2 px-[18px] mt-2 rounded-[8px] border border-[#333] text-[#333] text-[12px] font-normal bg-[#fff] outline-none hover:bg-[#222] hover:text-[#fff] duration-300"
+                                                title="show fields"
+                                            >
+                                                Show fields
+                                            </button>
+                                            {/* Delete Button */}
+                                            <button
+                                                onClick={() =>
+                                                    confirmDeleteSubs(sub._id)
+                                                }
+                                                className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                title="Delete category"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                                 <button
