@@ -62,7 +62,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
             <div className="border border-slate-200 shadow-md rounded-lg mb-2 overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="w-full flex items-center justify-between bg-white">
                     <button
-                        className="flex-1 text-left p-4 font-medium transition hover:bg-gray-50 cursor-pointer"
+                        className="capitalize flex-1 text-left p-4 font-medium transition hover:bg-gray-50 cursor-pointer"
                         onClick={() => toggleAccordion(category._id)}
                     >
                         {category.name}
@@ -102,7 +102,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                         className="flex items-center justify-between"
                                     >
                                         <div className="flex items-center gap-5">
-                                            <div className="py-2 text-gray-700 flex items-center">
+                                            <div className="py-2 text-gray-700 flex items-center capitalize">
                                                 <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
                                                 {sub.name}
                                             </div>

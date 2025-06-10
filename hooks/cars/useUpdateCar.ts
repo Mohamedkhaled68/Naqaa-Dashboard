@@ -28,13 +28,10 @@ const useUpdateCar = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: [
-                    "cars",
-                    "getCars",
-                    "getCarByID",
-                    "drivers",
-                    "getDrivers",
-                ],
+                queryKey: ["cars"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
             });
 
             router.push("/dashboard/cars");

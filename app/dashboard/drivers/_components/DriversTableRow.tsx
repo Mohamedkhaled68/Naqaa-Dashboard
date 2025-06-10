@@ -37,7 +37,7 @@ const DriverTableRow = ({ driver }: DriverTableRowProps) => {
                 {driver.nationalId}
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[600]">
-                {driver.address}
+                {driver.address ? driver.address : "--"}
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
                 {driver.licenseNumber}

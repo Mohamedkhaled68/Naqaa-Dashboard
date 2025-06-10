@@ -8,9 +8,10 @@ type Driver = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
+    address?: string; // Make optional
 };
 
+// Update the FormErrors interface
 interface FormErrors {
     name?: string;
     phoneNumber?: string;
@@ -61,9 +62,13 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                 "License number must be at least 5 characters";
         }
 
-        if (!formData.address.trim()) {
-            newErrors.address = "Address is required";
-        } else if (formData.address.trim().length < 10) {
+        // Remove address validation - it's now optional
+        // Only validate if address is provided and too short
+        if (
+            formData.address &&
+            formData.address.trim().length > 0 &&
+            formData.address.trim().length < 10
+        ) {
             newErrors.address = "Please provide a complete address";
         }
 
@@ -268,7 +273,10 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                                 htmlFor="address"
                                 className="block text-sm font-semibold text-gray-700 mb-2"
                             >
-                                Address
+                                Address{" "}
+                                <span className="text-gray-400 font-normal">
+                                    (Optional)
+                                </span>
                             </label>
                             <div className="relative">
                                 <MapPin className="absolute left-3 top-4 text-gray-400 w-5 h-5" />
@@ -283,7 +291,7 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                                             ? "border-red-500"
                                             : "border-gray-300"
                                     }`}
-                                    placeholder="Enter complete address"
+                                    placeholder="Enter complete address (optional)"
                                 />
                             </div>
                             {errors.address && (

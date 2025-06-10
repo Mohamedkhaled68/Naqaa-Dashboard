@@ -7,25 +7,32 @@ import DriversSection from "./updateFormComponents/DriversSection";
 import useUpdateCar from "@/hooks/cars/useUpdateCar";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 
+type CustomFieldWithValue = {
+    fieldName: string;
+    fieldValue: string;
+    subcategoryId: string;
+};
+
 type NM = {
     cost: string;
     date: string;
     mechanicCost: string;
     subCategories: string[];
     driver: string;
+    customFieldValues: CustomFieldWithValue[];
 };
 
 const UpdatCarForm = () => {
     const { car, setCar, clearCar } = useCurrentCarStore((state) => state);
     const [activeSection, setActiveSection] = useState("car");
     const { mutateAsync: updateCar } = useUpdateCar();
-
     const [newMaintenance, setNewMaintenance] = useState<NM>({
         cost: "",
         mechanicCost: "",
         date: "",
         subCategories: [],
         driver: "",
+        customFieldValues: [],
     });
 
     const handleCarUpdate = (field: string, value: string) => {

@@ -161,7 +161,7 @@ const DriverDetails = () => {
                                                 Address
                                             </p>
                                             <p className="text-lg text-gray-900">
-                                                {driver.address}
+                                                {driver.address ? driver.address : "--"}
                                             </p>
                                         </div>
                                     </div>

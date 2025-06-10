@@ -12,6 +12,11 @@ type MaintenanceRecord = {
     cost: number;
     mechanicCost: number;
     date: string; // ISO date string, can be converted to Date when needed
+    customFieldData?: {
+        fieldName: string;
+        fieldValue: string;
+        subcategoryId: string;
+    }[]; // Optional custom field values
 };
 
 type Props = {
@@ -43,8 +48,12 @@ const useUpdateMaintenanceRecord = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["cars", "drivers", "getDriverMaintenance"],
+                queryKey: ["cars"],
             });
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
+            });
+
             toast.success("Maintenance record updated successfully!");
         },
 

@@ -13,6 +13,11 @@ interface MaintenanceRecord {
     driver: string; // Driver ID
     car: string; // Car ID
     description: string;
+    customFieldData?: {
+        fieldName: string;
+        fieldValue: string;
+        subcategoryId: string;
+    }[]; // Optional custom field values
 }
 const useCreateMaintenanceRecord = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
@@ -23,6 +28,7 @@ const useCreateMaintenanceRecord = () => {
     return useMutation({
         mutationKey: ["Maintenance", "updateMaintenance"],
         mutationFn: async (data: MaintenanceRecord) => {
+            const { date, ...rest } = data;
             const response = await axios.post(`${baseUrl}/maintenance`, data, {
                 headers: {
                     "Content-Type": "application/json",
@@ -36,7 +42,12 @@ const useCreateMaintenanceRecord = () => {
             queryClient.invalidateQueries({
                 queryKey: ["cars", ...driverMaintenanceKeys.all],
             });
-            toast.success("Maintenance Record Created Successfully!");
+            queryClient.invalidateQueries({
+                queryKey: ["cars"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
+            });
         },
 
         onError: (error: any) => {

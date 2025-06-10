@@ -24,6 +24,11 @@ type MaintenanceRecord = {
     description: string;
     cost: number;
     date: string;
+    customFieldValues?: {
+        fieldName: string;
+        fieldValue: string;
+        subcategoryId: string;
+    }[];
 };
 
 type Car = {

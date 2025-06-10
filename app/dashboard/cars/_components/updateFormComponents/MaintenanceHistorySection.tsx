@@ -1,10 +1,13 @@
+// filepath: c:\Users\NV_USER\Desktop\naqaa-dashboard\app\dashboard\cars\_components\updateFormComponents\MaintenanceHistorySection.tsx
 import useCreateMaintenanceRecord from "@/hooks/maintenance/useCreateMaintenanceRecord";
 import useDeleteMaintenanceRecord from "@/hooks/maintenance/useDeleteMaintenanceRecord";
-import useUpdateMaintenanceRecord from "@/hooks/maintenance/useUpdateMaintenanceRecord"; // Add this hook
+import useUpdateMaintenanceRecord from "@/hooks/maintenance/useUpdateMaintenanceRecord";
 import useGetSubCategories from "@/hooks/subCategories/useGetSubCategories";
-import { Minus, Plus, Trash2, Wrench, Edit, Save, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { Wrench } from "lucide-react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
+import AddMaintenanceForm from "./AddMaintenanceForm";
+import MaintenanceRecordItem from "./MaintenanceRecordItem";
 
 type DriverToApi = {
     _id: string;
@@ -15,14 +18,28 @@ type DriverToApi = {
     address: string;
 };
 
+type CustomField = {
+    fieldName: string;
+    description: string;
+    isRequired: boolean;
+    _id: string;
+};
+
 type SubCategory = {
     name: string;
     category: {
         _id: string;
         name: string;
     };
+    customFields?: CustomField[];
     description: string;
     _id: string;
+};
+
+type CustomFieldWithValue = {
+    fieldName: string;
+    fieldValue: string;
+    subcategoryId: string;
 };
 
 type NM = {
@@ -31,20 +48,10 @@ type NM = {
     mechanicCost: string;
     subCategories: string[];
     driver: string;
+    customFieldValues: CustomFieldWithValue[];
 };
 
-type MaintenanceRecord = {
-    _id: string;
-    cost: number | string;
-    mechanicCost: number | string;
-    date: string;
-    description: string;
-    driver: DriverToApi;
-    subCategories: SubCategory[];
-    car: string;
-};
-
-type MaintenanceHistorySectionprops = {
+type MaintenanceHistorySectionProps = {
     newMaintenance: NM;
     setNewMaintenance: React.Dispatch<React.SetStateAction<NM>>;
     setCar: (car: Car) => void;
@@ -57,6 +64,7 @@ type ValidationErrors = {
     date?: string;
     driver?: string;
     subCategories?: string;
+    [key: string]: string | undefined;
 };
 
 const MaintenanceHistorySection = ({
@@ -64,7 +72,7 @@ const MaintenanceHistorySection = ({
     setNewMaintenance,
     setCar,
     car,
-}: MaintenanceHistorySectionprops) => {
+}: MaintenanceHistorySectionProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
         {}
@@ -76,15 +84,71 @@ const MaintenanceHistorySection = ({
         mechanicCost: "",
         subCategories: [],
         driver: "",
+        customFieldValues: [],
     });
 
-    const { data: subCategories } = useGetSubCategories();
+    // Add state for custom field values
+    const [customFieldValues, setCustomFieldValues] = useState<
+        CustomFieldWithValue[]
+    >([]);
+    const [editCustomFieldValues, setEditCustomFieldValues] = useState<
+        CustomFieldWithValue[]
+    >([]);
+
+    const { data: subCategories = [], isLoading } = useGetSubCategories();
     const { mutateAsync: createMaintenanceRecord } =
         useCreateMaintenanceRecord();
     const { mutateAsync: deleteMaintenanceRecord } =
         useDeleteMaintenanceRecord();
     const { mutateAsync: updateMaintenanceRecord } =
-        useUpdateMaintenanceRecord(); // Add this
+        useUpdateMaintenanceRecord();
+
+    // Get custom fields for selected subcategories
+    const getCustomFieldsForSubcategories = (subcategoryIds: string[]) => {
+        const fields: Array<CustomField & { subcategoryId: string }> = [];
+        subcategoryIds.forEach((subId) => {
+            const subcategory = subCategories.find(
+                (sub: SubCategory) => sub._id === subId
+            );
+            if (subcategory && subcategory.customFields) {
+                subcategory.customFields.forEach((field: CustomField) => {
+                    fields.push({ ...field, subcategoryId: subId });
+                });
+            }
+        });
+        return fields;
+    };
+
+    // Handle custom field value changes
+    const handleCustomFieldValueChange = (
+        fieldName: string,
+        subcategoryId: string,
+        value: string,
+        isEdit = false
+    ) => {
+        const setter = isEdit ? setEditCustomFieldValues : setCustomFieldValues;
+
+        setter((prev) => {
+            const existing = prev.find(
+                (f) =>
+                    f.fieldName === fieldName &&
+                    f.subcategoryId === subcategoryId
+            );
+            if (existing) {
+                return prev.map((f) =>
+                    f.fieldName === fieldName &&
+                    f.subcategoryId === subcategoryId
+                        ? { ...f, fieldValue: value }
+                        : f
+                );
+            } else {
+                return [
+                    ...prev,
+                    { fieldName, fieldValue: value, subcategoryId },
+                ];
+            }
+        });
+    };
 
     // Input validation function
     const validateForm = (maintenance: NM): ValidationErrors => {
@@ -124,7 +188,10 @@ const MaintenanceHistorySection = ({
     };
 
     // Handle input changes with validation
-    const handleInputChange = (field: keyof NM, value: string) => {
+    const handleInputChange = (
+        field: keyof ValidationErrors,
+        value: string
+    ) => {
         setNewMaintenance((prev) => ({
             ...prev,
             [field]: value,
@@ -167,6 +234,33 @@ const MaintenanceHistorySection = ({
             subCategories: [...prev.subCategories, subCategoryId],
         }));
 
+        // Initialize custom field values for this subcategory
+        const subcategory = subCategories.find(
+            (sub: SubCategory) => sub._id === subCategoryId
+        );
+        if (subcategory && subcategory.customFields) {
+            subcategory.customFields.forEach((field: CustomField) => {
+                setCustomFieldValues((prev) => {
+                    const exists = prev.find(
+                        (f) =>
+                            f.fieldName === field.fieldName &&
+                            f.subcategoryId === subCategoryId
+                    );
+                    if (!exists) {
+                        return [
+                            ...prev,
+                            {
+                                fieldName: field.fieldName,
+                                fieldValue: "",
+                                subcategoryId: subCategoryId,
+                            },
+                        ];
+                    }
+                    return prev;
+                });
+            });
+        }
+
         // Clear subcategories validation error
         if (validationErrors.subCategories) {
             setValidationErrors((prev) => ({
@@ -183,10 +277,34 @@ const MaintenanceHistorySection = ({
                 (sub) => sub !== subCategoryId
             ),
         }));
+
+        // Remove custom field values for this subcategory
+        setCustomFieldValues((prev) =>
+            prev.filter((f) => f.subcategoryId !== subCategoryId)
+        );
     };
 
     const handleAddMaintenance = async () => {
         const errors = validateForm(newMaintenance);
+
+        // Validate custom fields
+        const customFields = getCustomFieldsForSubcategories(
+            newMaintenance.subCategories
+        );
+        const requiredFields = customFields.filter((field) => field.isRequired);
+
+        requiredFields.forEach((field) => {
+            const value = customFieldValues.find(
+                (v) =>
+                    v.fieldName === field.fieldName &&
+                    v.subcategoryId === field.subcategoryId
+            );
+            if (!value || !value.fieldValue.trim()) {
+                errors[
+                    `customField_${field.fieldName}_${field.subcategoryId}`
+                ] = `${field.fieldName.replace(/_/g, " ")} is required`;
+            }
+        });
 
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
@@ -237,6 +355,9 @@ const MaintenanceHistorySection = ({
                         date: convertToISOStringWithCurrentTime(
                             newMaintenance.date
                         ),
+                        customFieldData: customFieldValues.filter(
+                            (f) => f.fieldValue.trim() !== ""
+                        ),
                     });
 
                 setCar({
@@ -245,19 +366,21 @@ const MaintenanceHistorySection = ({
                         ...car.maintenanceHistory,
                         { ...maintenanceRecordRes, car: car._id },
                     ],
-                });
-
-                // Reset form
+                }); // Reset form
                 setNewMaintenance({
                     cost: "",
                     mechanicCost: "",
                     date: "",
                     subCategories: [],
                     driver: "",
+                    customFieldValues: [],
                 });
+                setCustomFieldValues([]);
                 setValidationErrors({});
+                toast.success("Maintenance record added successfully!");
             } catch (error) {
                 console.error("Failed to create maintenance record:", error);
+                toast.error("Failed to create maintenance record");
             }
         }
     };
@@ -267,14 +390,35 @@ const MaintenanceHistorySection = ({
         setEditForm({
             cost: String(record.cost),
             mechanicCost: String(record.mechanicCost),
-            date: record.date.split("T")[0], // Extract date part
+            date: record.date.split("T")[0],
             driver: record.driver._id,
             subCategories: record.subCategories.map((sub) => sub._id),
+            customFieldValues: record.customFieldValues || [],
         });
+        setEditCustomFieldValues(record.customFieldValues || []);
     };
 
     const handleUpdateRecord = async (recordId: string) => {
         const errors = validateForm(editForm);
+
+        // Validate edit custom fields
+        const customFields = getCustomFieldsForSubcategories(
+            editForm.subCategories
+        );
+        const requiredFields = customFields.filter((field) => field.isRequired);
+
+        requiredFields.forEach((field) => {
+            const value = editCustomFieldValues.find(
+                (v) =>
+                    v.fieldName === field.fieldName &&
+                    v.subcategoryId === field.subcategoryId
+            );
+            if (!value || !value.fieldValue.trim()) {
+                errors[
+                    `customField_${field.fieldName}_${field.subcategoryId}`
+                ] = `${field.fieldName.replace(/_/g, " ")} is required`;
+            }
+        });
 
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
@@ -325,6 +469,9 @@ const MaintenanceHistorySection = ({
                     car: car._id,
                     description,
                     date: convertToISOStringWithCurrentTime(editForm.date),
+                    customFieldData: editCustomFieldValues.filter(
+                        (f) => f.fieldValue.trim() !== ""
+                    ),
                 },
             });
 
@@ -338,8 +485,11 @@ const MaintenanceHistorySection = ({
             });
 
             setEditingRecord(null);
+            setEditCustomFieldValues([]);
             setValidationErrors({});
+            toast.success("Maintenance record updated successfully!");
         } catch (error) {
+            console.error("Failed to update maintenance record:", error);
             toast.error("Failed to update maintenance record");
         }
     };
@@ -350,27 +500,27 @@ const MaintenanceHistorySection = ({
     };
 
     const handleRemoveMaintenance = async (id: string) => {
-        setCar({
-            ...car,
-            maintenanceHistory: car.maintenanceHistory.filter(
-                (item) => item._id !== id
-            ),
-        });
-
-        await deleteMaintenanceRecord(id);
+        try {
+            await deleteMaintenanceRecord(id);
+            setCar({
+                ...car,
+                maintenanceHistory: car.maintenanceHistory.filter(
+                    (item) => item._id !== id
+                ),
+            });
+            toast.success("Maintenance record deleted successfully!");
+        } catch (error) {
+            console.error("Failed to delete maintenance record:", error);
+            toast.error("Failed to delete maintenance record");
+        }
     };
 
-    // Filter subcategories based on search term
-    const filteredSubCategories = subCategories?.filter(
-        (subCategory: SubCategory) =>
-            subCategory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subCategory.category.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()) ||
-            subCategory.description
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-    );
+    const handleEditFormChange = (field: keyof NM, value: any) => {
+        setEditForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
 
     return (
         <div className="space-y-6">
@@ -382,301 +532,30 @@ const MaintenanceHistorySection = ({
             </div>
 
             {/* Add New Maintenance */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Add New Maintenance Record
-                </h3>
-
-                <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Mechanic Cost ($) *
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={newMaintenance.mechanicCost}
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        "mechanicCost",
-                                        e.target.value
-                                    )
-                                }
-                                className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    validationErrors.mechanicCost
-                                        ? "border-red-500"
-                                        : "border-gray-300"
-                                }`}
-                                placeholder="Enter mechanic cost"
-                            />
-                            {validationErrors.mechanicCost && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {validationErrors.mechanicCost}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Maintenance Cost ($) *
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={newMaintenance.cost}
-                                onChange={(e) =>
-                                    handleInputChange("cost", e.target.value)
-                                }
-                                className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    validationErrors.cost
-                                        ? "border-red-500"
-                                        : "border-gray-300"
-                                }`}
-                                placeholder="Enter maintenance cost"
-                            />
-                            {validationErrors.cost && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {validationErrors.cost}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Date *
-                            </label>
-                            <input
-                                type="date"
-                                max={new Date().toISOString().split("T")[0]}
-                                value={newMaintenance.date}
-                                onChange={(e) =>
-                                    handleInputChange("date", e.target.value)
-                                }
-                                className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                    validationErrors.date
-                                        ? "border-red-500"
-                                        : "border-gray-300"
-                                }`}
-                            />
-                            {validationErrors.date && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {validationErrors.date}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Drivers */}
-                    <div>
-                        <div className="flex justify-between items-center mb-3">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Drivers *
-                            </label>
-                        </div>
-                        {validationErrors.driver && (
-                            <p className="text-red-500 text-sm mb-2">
-                                {validationErrors.driver}
-                            </p>
-                        )}
-
-                        <div className="grid grid-cols-3 gap-5">
-                            {car.driver?.length > 0 ? (
-                                car.driver?.map((driver: DriverToApi) => {
-                                    const isSelected =
-                                        newMaintenance.driver === driver._id;
-                                    return (
-                                        <div
-                                            key={driver._id}
-                                            className={`rounded-sm ${
-                                                isSelected
-                                                    ? "bg-green-500"
-                                                    : "bg-white"
-                                            } transition-all duration-300 shadow-md p-4 flex justify-between items-center ${
-                                                validationErrors.driver
-                                                    ? "ring-2 ring-red-200"
-                                                    : ""
-                                            }`}
-                                        >
-                                            <div className="flex flex-col">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <span
-                                                            className={`font-medium ${
-                                                                isSelected
-                                                                    ? "text-white"
-                                                                    : "text-gray-800"
-                                                            }`}
-                                                        >
-                                                            {driver.name}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <p
-                                                    className={`text-sm ${
-                                                        isSelected
-                                                            ? "text-white"
-                                                            : "text-gray-600"
-                                                    } mt-1`}
-                                                >
-                                                    {driver.licenseNumber}
-                                                </p>
-                                            </div>
-                                            {isSelected ? (
-                                                <Minus
-                                                    onClick={() =>
-                                                        handleRemoveDriver()
-                                                    }
-                                                    className="hover:bg-black/10 text-white transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
-                                                />
-                                            ) : (
-                                                <Plus
-                                                    onClick={() =>
-                                                        handleAddDriver(
-                                                            driver._id
-                                                        )
-                                                    }
-                                                    className="hover:bg-slate-200 transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
-                                                />
-                                            )}
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <p className="text-gray-500 text-center py-8 col-span-3">
-                                    No drivers assigned to this car.
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Sub Categories */}
-                    <div>
-                        <div className="flex justify-between items-center mb-3">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Sub Categories *
-                            </label>
-                            <input
-                                onChange={(e) =>
-                                    setSearchTerm(e.target.value.trim())
-                                }
-                                value={searchTerm}
-                                className="py-2 pl-[15px] pr-[10px] rounded-[5px] border border-[#D8D6DE] placeholder:text-[#B9B9C3] text-[12px] font-normal text-[#6E6B7B] outline-none"
-                                type="text"
-                                id="search"
-                                placeholder="Search subcategories..."
-                            />
-                        </div>
-                        {validationErrors.subCategories && (
-                            <p className="text-red-500 text-sm mb-2">
-                                {validationErrors.subCategories}
-                            </p>
-                        )}
-
-                        <div className="grid grid-cols-3 gap-5">
-                            {filteredSubCategories?.map(
-                                (subCategory: SubCategory) => {
-                                    const isSelected =
-                                        newMaintenance.subCategories.some(
-                                            (sub) => sub === subCategory._id
-                                        );
-                                    return (
-                                        <div
-                                            key={subCategory._id}
-                                            className={`rounded-sm ${
-                                                isSelected
-                                                    ? "bg-green-500"
-                                                    : "bg-white"
-                                            } transition-all duration-300 shadow-md p-4 flex justify-between items-center ${
-                                                validationErrors.subCategories
-                                                    ? "ring-2 ring-red-200"
-                                                    : ""
-                                            }`}
-                                        >
-                                            <div className="flex flex-col">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <span
-                                                            className={`font-medium ${
-                                                                isSelected
-                                                                    ? "text-white"
-                                                                    : "text-gray-800"
-                                                            }`}
-                                                        >
-                                                            {subCategory.name}
-                                                        </span>
-                                                        <span
-                                                            className={`${
-                                                                isSelected
-                                                                    ? "text-white"
-                                                                    : "text-gray-600"
-                                                            } ml-2`}
-                                                        >
-                                                            (
-                                                            {
-                                                                subCategory
-                                                                    .category
-                                                                    .name
-                                                            }
-                                                            )
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                {subCategory.description && (
-                                                    <p
-                                                        className={`text-sm ${
-                                                            isSelected
-                                                                ? "text-white"
-                                                                : "text-gray-600"
-                                                        } mt-1`}
-                                                    >
-                                                        {
-                                                            subCategory.description
-                                                        }
-                                                    </p>
-                                                )}
-                                            </div>
-                                            {isSelected ? (
-                                                <Minus
-                                                    onClick={() =>
-                                                        handleRemoveSubCategory(
-                                                            subCategory._id
-                                                        )
-                                                    }
-                                                    className="hover:bg-black/10 text-white transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
-                                                />
-                                            ) : (
-                                                <Plus
-                                                    onClick={() =>
-                                                        handleAddSubCategory(
-                                                            subCategory._id
-                                                        )
-                                                    }
-                                                    className="hover:bg-slate-200 transition-all duration-300 rounded-full p-1 w-[28px] h-[28px] cursor-pointer"
-                                                />
-                                            )}
-                                        </div>
-                                    );
-                                }
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    onClick={handleAddMaintenance}
-                    disabled={Object.keys(validationErrors).length > 0}
-                    className={`cursor-pointer mt-4 px-4 py-2 rounded-md transition-colors flex items-center gap-2 ${
-                        Object.keys(validationErrors).length > 0
-                            ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                            : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Maintenance Record
-                </button>
-            </div>
+            <AddMaintenanceForm
+                newMaintenance={newMaintenance}
+                onInputChange={handleInputChange}
+                drivers={car.driver}
+                onAddDriver={handleAddDriver}
+                onRemoveDriver={handleRemoveDriver}
+                subCategories={subCategories}
+                onAddSubCategory={handleAddSubCategory}
+                onRemoveSubCategory={handleRemoveSubCategory}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                isLoading={isLoading}
+                customFieldValues={customFieldValues}
+                onCustomFieldValueChange={(fieldName, subcategoryId, value) =>
+                    handleCustomFieldValueChange(
+                        fieldName,
+                        subcategoryId,
+                        value,
+                        false
+                    )
+                }
+                validationErrors={validationErrors}
+                onSubmit={handleAddMaintenance}
+            />
 
             {/* Existing Maintenance Records */}
             <div className="space-y-4">
@@ -689,326 +568,33 @@ const MaintenanceHistorySection = ({
                     </p>
                 ) : (
                     car.maintenanceHistory.map((record) => (
-                        <div
+                        <MaintenanceRecordItem
                             key={record._id}
-                            className="bg-white border border-gray-200 rounded-lg p-4"
-                        >
-                            {editingRecord === record._id ? (
-                                // Edit Mode
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h4 className="font-medium text-gray-800 text-lg">
-                                            Edit Maintenance Record
-                                        </h4>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() =>
-                                                    handleUpdateRecord(
-                                                        record._id
-                                                    )
-                                                }
-                                                className="text-green-600 hover:text-green-800 p-1 flex items-center gap-1"
-                                            >
-                                                <Save className="w-4 h-4" />
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={handleCancelEdit}
-                                                className="text-gray-600 hover:text-gray-800 p-1 flex items-center gap-1"
-                                            >
-                                                <X className="w-4 h-4" />
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Maintenance Cost ($)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={editForm.cost}
-                                                onChange={(e) =>
-                                                    setEditForm((prev) => ({
-                                                        ...prev,
-                                                        cost: e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Mechanic Cost ($)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={editForm.mechanicCost}
-                                                onChange={(e) =>
-                                                    setEditForm((prev) => ({
-                                                        ...prev,
-                                                        mechanicCost:
-                                                            e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Date
-                                            </label>
-                                            <input
-                                                type="date"
-                                                max={
-                                                    new Date()
-                                                        .toISOString()
-                                                        .split("T")[0]
-                                                }
-                                                value={editForm.date}
-                                                onChange={(e) =>
-                                                    setEditForm((prev) => ({
-                                                        ...prev,
-                                                        date: e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Edit Driver Selection */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Driver
-                                        </label>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {car.driver?.map(
-                                                (driver: DriverToApi) => {
-                                                    const isSelected =
-                                                        editForm.driver ===
-                                                        driver._id;
-                                                    return (
-                                                        <div
-                                                            key={driver._id}
-                                                            onClick={() =>
-                                                                setEditForm(
-                                                                    (prev) => ({
-                                                                        ...prev,
-                                                                        driver: driver._id,
-                                                                    })
-                                                                )
-                                                            }
-                                                            className={`rounded-sm ${
-                                                                isSelected
-                                                                    ? "bg-green-500"
-                                                                    : "bg-gray-100"
-                                                            } transition-all duration-300 p-3 cursor-pointer`}
-                                                        >
-                                                            <span
-                                                                className={`font-medium text-sm ${
-                                                                    isSelected
-                                                                        ? "text-white"
-                                                                        : "text-gray-800"
-                                                                }`}
-                                                            >
-                                                                {driver.name}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Edit SubCategories Selection */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Sub Categories
-                                        </label>
-                                        <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto">
-                                            {subCategories?.map(
-                                                (subCategory: SubCategory) => {
-                                                    const isSelected =
-                                                        editForm.subCategories.includes(
-                                                            subCategory._id
-                                                        );
-                                                    return (
-                                                        <div
-                                                            key={
-                                                                subCategory._id
-                                                            }
-                                                            onClick={() => {
-                                                                if (
-                                                                    isSelected
-                                                                ) {
-                                                                    setEditForm(
-                                                                        (
-                                                                            prev
-                                                                        ) => ({
-                                                                            ...prev,
-                                                                            subCategories:
-                                                                                prev.subCategories.filter(
-                                                                                    (
-                                                                                        id
-                                                                                    ) =>
-                                                                                        id !==
-                                                                                        subCategory._id
-                                                                                ),
-                                                                        })
-                                                                    );
-                                                                } else {
-                                                                    setEditForm(
-                                                                        (
-                                                                            prev
-                                                                        ) => ({
-                                                                            ...prev,
-                                                                            subCategories:
-                                                                                [
-                                                                                    ...prev.subCategories,
-                                                                                    subCategory._id,
-                                                                                ],
-                                                                        })
-                                                                    );
-                                                                }
-                                                            }}
-                                                            className={`rounded-sm ${
-                                                                isSelected
-                                                                    ? "bg-green-500"
-                                                                    : "bg-gray-100"
-                                                            } transition-all duration-300 p-3 cursor-pointer`}
-                                                        >
-                                                            <span
-                                                                className={`font-medium text-sm ${
-                                                                    isSelected
-                                                                        ? "text-white"
-                                                                        : "text-gray-800"
-                                                                }`}
-                                                            >
-                                                                {
-                                                                    subCategory.name
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                // View Mode
-                                <>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h4 className="font-medium text-gray-800 text-lg">
-                                                {record.description}
-                                            </h4>
-                                            <p className="text-sm text-gray-600">
-                                                Driver: {record.driver.name}
-                                            </p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() =>
-                                                    handleEditRecord(record)
-                                                }
-                                                className="text-blue-600 hover:text-blue-800 p-1"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleRemoveMaintenance(
-                                                        record._id
-                                                    )
-                                                }
-                                                className="text-red-600 hover:text-red-800 p-1"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
-                                        <div>
-                                            <span className="font-medium">
-                                                Cost:
-                                            </span>{" "}
-                                            ${record.cost}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">
-                                                Mechanic Cost:
-                                            </span>{" "}
-                                            ${record.mechanicCost}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">
-                                                Date:
-                                            </span>{" "}
-                                            {record.date}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">
-                                                Car ID:
-                                            </span>{" "}
-                                            {record.car}
-                                        </div>
-                                    </div>
-
-                                    {record.subCategories.length > 0 && (
-                                        <div>
-                                            <h5 className="font-medium text-gray-800 mb-2">
-                                                Sub Categories:
-                                            </h5>
-                                            <div className="space-y-2">
-                                                {record.subCategories.map(
-                                                    (subCat) => (
-                                                        <div
-                                                            key={subCat._id}
-                                                            className="bg-gray-50 p-3 rounded-md"
-                                                        >
-                                                            <div className="flex justify-between items-start">
-                                                                <div>
-                                                                    <span className="font-medium text-gray-800">
-                                                                        {
-                                                                            subCat.name
-                                                                        }
-                                                                    </span>
-                                                                    <span className="text-gray-600 ml-2">
-                                                                        (
-                                                                        {
-                                                                            subCat
-                                                                                .category
-                                                                                .name
-                                                                        }
-                                                                        )
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            {subCat.description && (
-                                                                <p className="text-sm text-gray-600 mt-1">
-                                                                    {
-                                                                        subCat.description
-                                                                    }
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    )
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                            record={record}
+                            isEditing={editingRecord === record._id}
+                            editForm={editForm}
+                            onEditFormChange={handleEditFormChange}
+                            onStartEdit={() => handleEditRecord(record)}
+                            onSaveEdit={() => handleUpdateRecord(record._id)}
+                            onCancelEdit={handleCancelEdit}
+                            onDelete={() => handleRemoveMaintenance(record._id)}
+                            drivers={car.driver}
+                            subCategories={subCategories}
+                            customFieldValues={editCustomFieldValues}
+                            onCustomFieldValueChange={(
+                                fieldName,
+                                subcategoryId,
+                                value
+                            ) =>
+                                handleCustomFieldValueChange(
+                                    fieldName,
+                                    subcategoryId,
+                                    value,
+                                    true
+                                )
+                            }
+                            validationErrors={validationErrors}
+                        />
                     ))
                 )}
             </div>

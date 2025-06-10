@@ -8,7 +8,7 @@ type Driver = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
+    address?: string;
 };
 
 const useCreateDriver = () => {

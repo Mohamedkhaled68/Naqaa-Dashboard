@@ -24,7 +24,10 @@ const useDeleteMaintenanceRecord = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["cars", "drivers", "getDriverMaintenance"],
+                queryKey: ["cars"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
             });
         },
 

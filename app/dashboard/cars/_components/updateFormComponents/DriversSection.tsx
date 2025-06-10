@@ -1,5 +1,5 @@
 import useGetDrivers from "@/hooks/drivers/useGetDrivers";
-import { Minus, Plus, Trash2, User } from "lucide-react";
+import { Minus, Plus, User } from "lucide-react";
 import React from "react";
 
 type DriversSectionProps = {
