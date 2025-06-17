@@ -23,7 +23,10 @@ const useDeleteDriver = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["drivers", "getDrivers", "cars", "getCars"],
+                queryKey: ["drivers"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["cars"],
             });
 
             router.push("/dashboard/drivers");

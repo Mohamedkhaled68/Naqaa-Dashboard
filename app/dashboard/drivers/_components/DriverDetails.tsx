@@ -21,6 +21,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import useDeleteDriver from "@/hooks/drivers/useDelteDriver";
 import useGetDriverMaintenance from "@/hooks/drivers/useGetDriverMaintenance";
+import DeletionWarningModal from "@/components/DeletionWarningModal";
+import { useModal } from "@/store/useModal";
 
 const DriverDetails = () => {
     const { driver } = useCurrentDriverStore((state) => state);
@@ -29,8 +31,7 @@ const DriverDetails = () => {
     const { mutateAsync: deleteDriver } = useDeleteDriver();
     const { data: records } = useGetDriverMaintenance(driver?._id);
 
-    console.log(records);
-
+    const { onOpen } = useModal();
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
@@ -50,10 +51,12 @@ const DriverDetails = () => {
         alert("Edit functionality would redirect to edit form");
     };
 
-    const confirmDelete = async (driverId: string) => {
+    const confirmDelete = async () => {
+        if (!driver) return;
         setLoading(true);
+
         try {
-            await deleteDriver(driverId);
+            await deleteDriver(driver?._id);
             toast.success("Driver deleted successfully!");
         } catch (err: any) {
             toast.error(err?.response?.data?.message);
@@ -161,7 +164,9 @@ const DriverDetails = () => {
                                                 Address
                                             </p>
                                             <p className="text-lg text-gray-900">
-                                                {driver.address ? driver.address : "--"}
+                                                {driver.address
+                                                    ? driver.address
+                                                    : "--"}
                                             </p>
                                         </div>
                                     </div>
@@ -426,20 +431,19 @@ const DriverDetails = () => {
                             </button>
                             <button
                                 disabled={loading}
-                                onClick={() => confirmDelete(driver._id)}
+                                onClick={() => {
+                                    onOpen(
+                                        <DeletionWarningModal
+                                            deleteFunc={confirmDelete}
+                                            id={driver._id}
+                                            item="driver"
+                                        />
+                                    );
+                                }}
                                 className="flex items-center bg-red-500 text-white px-8 cursor-pointer py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
                             >
-                                {loading ? (
-                                    <>
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Deleting...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Delete
-                                    </>
-                                )}
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
                             </button>
                         </div>
                     </div>

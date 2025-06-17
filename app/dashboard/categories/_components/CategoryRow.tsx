@@ -6,6 +6,7 @@ import useDeleteSubCategories from "@/hooks/subCategories/useDeleteSubCategories
 import CreateSubcategoryForm from "./CreateSubCategoriesForm";
 import { useModal } from "@/store/useModal";
 import ShowAndCreateFields from "./ShowAndCreateFields";
+import DeletionWarningModal from "@/components/DeletionWarningModal";
 
 // Mock Category type - replace with your actual type
 type Category = {
@@ -71,7 +72,16 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                     <div className="flex items-center pr-4 space-x-2">
                         {/* Delete Button */}
                         <button
-                            onClick={confirmDelete}
+                            // onClick={confirmDelete}
+                            onClick={() => {
+                                onOpen(
+                                    <DeletionWarningModal
+                                        deleteFunc={confirmDelete}
+                                        id={category._id}
+                                        item="category"
+                                    />
+                                );
+                            }}
                             className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                             title="Delete category"
                         >

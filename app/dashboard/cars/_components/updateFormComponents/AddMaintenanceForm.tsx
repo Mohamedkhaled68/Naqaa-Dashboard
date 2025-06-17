@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import DriverSelector from "./DriverSelector";
 import SubCategorySelector from "./SubCategorySelector";
 import CustomFieldsSection from "./CustomFieldsSection";
+import { error } from "console";
 
 type DriverToApi = {
     _id: string;
@@ -88,6 +89,7 @@ const AddMaintenanceForm: React.FC<AddMaintenanceFormProps> = ({
     validationErrors,
     onSubmit,
 }) => {
+    console.log(validationErrors);
     return (
         <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
@@ -206,9 +208,17 @@ const AddMaintenanceForm: React.FC<AddMaintenanceFormProps> = ({
 
                 <button
                     onClick={onSubmit}
-                    disabled={Object.keys(validationErrors).length > 0}
+                    disabled={
+                        Object.keys(validationErrors).length > 0 &&
+                        Object.values(validationErrors).some(
+                            (error) => error !== undefined
+                        )
+                    }
                     className={`cursor-pointer mt-4 px-4 py-2 rounded-md transition-colors flex items-center gap-2 ${
-                        Object.keys(validationErrors).length > 0
+                        Object.keys(validationErrors).length > 0 &&
+                        Object.values(validationErrors).some(
+                            (error) => error !== undefined
+                        )
                             ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                             : "bg-green-600 text-white hover:bg-green-700"
                     }`}

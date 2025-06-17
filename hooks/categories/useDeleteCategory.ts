@@ -21,7 +21,13 @@ const useDeleteCategory = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ["categories", "getCategories"],
+                queryKey: ["categories"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["cars"],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
             });
         },
 

@@ -13,6 +13,9 @@ const cars = () => {
     const { data: cars, isLoading } = useGetCars(searchTerm);
     const { onClose, onOpen } = useModal((state) => state);
 
+    console.log(cars);
+    
+
     return (
         <GridContainer className="flex flex-col pb-[10px]">
             <OptionsBar

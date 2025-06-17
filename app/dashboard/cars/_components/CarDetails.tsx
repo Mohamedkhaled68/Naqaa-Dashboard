@@ -1,13 +1,25 @@
 "use client";
-import React from "react";
-import { Calendar, Car, User, Wrench, DollarSign } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+    Calendar,
+    Car,
+    User,
+    Wrench,
+    DollarSign,
+    ArrowUpDown,
+} from "lucide-react";
 import useDeleteCar from "@/hooks/cars/useDeleteCar";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/store/useModal";
+import DeletionWarningModal from "@/components/DeletionWarningModal";
 
 const CarDetails = () => {
-    const { mutateAsync: deleteCar } = useDeleteCar();
     const { car } = useCurrentCarStore((state) => state);
+    const { mutateAsync: deleteCar } = useDeleteCar();
+    const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+
+    const { onOpen } = useModal();
 
     const router = useRouter();
 
@@ -24,6 +36,12 @@ const CarDetails = () => {
             style: "currency",
             currency: "USD",
         }).format(amount);
+    };
+
+    const handleDeleteCar = async () => {
+        if (car) {
+            deleteCar(car?._id);
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -52,6 +70,18 @@ const CarDetails = () => {
         },
         0
     );
+
+    // Sort maintenance history based on selected order
+    const sortedMaintenanceHistory = useMemo(() => {
+        if (!car?.maintenanceHistory) return [];
+
+        return [...car.maintenanceHistory].sort((a, b) => {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+
+            return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+        });
+    }, [car?.maintenanceHistory, sortOrder]);
 
     if (!car) {
         return;
@@ -121,18 +151,44 @@ const CarDetails = () => {
 
             {/* Maintenance History */}
             <div className="mb-8">
-                <div className="flex items-center space-x-2 mb-6">
-                    <Wrench className="w-6 h-6 text-gray-600" />
-                    <h2 className="text-2xl font-bold text-gray-900">
-                        Maintenance History
-                    </h2>
-                    <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                        {car?.maintenanceHistory.length} records
-                    </span>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-2">
+                        <Wrench className="w-6 h-6 text-gray-600" />
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            Maintenance History
+                        </h2>
+                        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                            {car?.maintenanceHistory.length} records
+                        </span>
+                    </div>
+
+                    {/* Sort Control */}
+                    <div className="flex items-center space-x-2">
+                        <ArrowUpDown className="w-4 h-4 text-gray-500" />
+                        <label
+                            htmlFor="sort-select"
+                            className="text-sm font-medium text-gray-700"
+                        >
+                            Sort by:
+                        </label>
+                        <select
+                            id="sort-select"
+                            value={sortOrder}
+                            onChange={(e) =>
+                                setSortOrder(
+                                    e.target.value as "newest" | "oldest"
+                                )
+                            }
+                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                        >
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="space-y-6">
-                    {car?.maintenanceHistory.map((record) => (
+                    {sortedMaintenanceHistory.map((record) => (
                         <div
                             key={record._id}
                             className="border rounded-lg p-6 hover:shadow-md transition-shadow"
@@ -151,12 +207,6 @@ const CarDetails = () => {
                                             record.cost || record.cost || 0
                                         )}
                                     </span>
-                                    {record.cost && (
-                                        <span className="text-sm text-gray-500">
-                                            (Mechanic:{" "}
-                                            {formatCurrency(record.cost)})
-                                        </span>
-                                    )}
                                 </div>
                             </div>
 
@@ -231,14 +281,20 @@ const CarDetails = () => {
                     <div>
                         <button
                             className="cursor-pointer px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
-                            onClick={async () => {
-                                await deleteCar(car._id);
+                            onClick={() => {
+                                onOpen(
+                                    <DeletionWarningModal
+                                        deleteFunc={handleDeleteCar}
+                                        id={car._id}
+                                        item="car"
+                                    />
+                                );
                             }}
                         >
                             Delete Car
                         </button>
                     </div>
-                    {/* Delete Button */}
+                    {/* Update Button */}
                     <div>
                         <button
                             onClick={() => handleUpdateNav(car)}
