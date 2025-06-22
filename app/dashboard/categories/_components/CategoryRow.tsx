@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import {
+    ChevronDown,
+    ChevronUp,
+    Trash2,
+    AlertTriangle,
+    Edit,
+} from "lucide-react";
 import useDeleteCategory from "@/hooks/categories/useDeleteCategory";
 import toast from "react-hot-toast";
 import useDeleteSubCategories from "@/hooks/subCategories/useDeleteSubCategories";
 import CreateSubcategoryForm from "./CreateSubCategoriesForm";
+import UpdateSubcategoryForm from "./UpdateSubcategoryForm";
+import UpdateCategoryForm from "./UpdateCategoryForm";
 import { useModal } from "@/store/useModal";
 import ShowAndCreateFields from "./ShowAndCreateFields";
 import DeletionWarningModal from "@/components/DeletionWarningModal";
@@ -72,7 +80,6 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                     <div className="flex items-center pr-4 space-x-2">
                         {/* Delete Button */}
                         <button
-                            // onClick={confirmDelete}
                             onClick={() => {
                                 onOpen(
                                     <DeletionWarningModal
@@ -86,6 +93,17 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                             title="Delete category"
                         >
                             <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() =>
+                                onOpen(
+                                    <UpdateCategoryForm category={category} />
+                                )
+                            }
+                            className="p-2 cursor-pointer text-gray-400 hover:text-yellow-500 hover:bg-red-50 rounded-full transition-colors"
+                            title="Update category"
+                        >
+                            <Edit className="w-4 h-4" />
                         </button>
 
                         {/* Accordion Toggle */}
@@ -122,13 +140,13 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() =>
+                                                onClick={() => {
                                                     onOpen(
                                                         <ShowAndCreateFields
                                                             id={sub._id}
                                                         />
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                                 className="cursor-pointer py-2 px-[18px] mt-2 rounded-[8px] border border-[#333] text-[#333] text-[12px] font-normal bg-[#fff] outline-none hover:bg-[#222] hover:text-[#fff] duration-300"
                                                 title="show fields"
                                             >
@@ -140,9 +158,22 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                                                     confirmDeleteSubs(sub._id)
                                                 }
                                                 className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                                title="Delete category"
+                                                title="Delete subcategory"
                                             >
                                                 <Trash2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    onOpen(
+                                                        <UpdateSubcategoryForm
+                                                            subcategory={sub}
+                                                        />
+                                                    )
+                                                }
+                                                className="p-2 cursor-pointer text-gray-400 hover:text-yellow-500 hover:bg-red-50 rounded-full transition-colors"
+                                                title="Update subcategory"
+                                            >
+                                                <Edit className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>

@@ -10,7 +10,7 @@ import CreateDriverForm from "./_components/CreateDriverForm";
 
 const drivers = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const { data: drivers, isLoading } = useGetDrivers(searchTerm);
+    const { data: drivers, isLoading } = useGetDrivers(searchTerm.trim());
 
     console.log(drivers);
 

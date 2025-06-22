@@ -14,15 +14,18 @@ import {
     Calendar,
     Activity,
     Gauge,
-    DollarSign,
 } from "lucide-react";
+import Price from "@/components/Price";
 import { useCurrentDriverStore } from "@/store/drivers/useCurrentDriverStore";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useDeleteDriver from "@/hooks/drivers/useDelteDriver";
 import useGetDriverMaintenance from "@/hooks/drivers/useGetDriverMaintenance";
 import DeletionWarningModal from "@/components/DeletionWarningModal";
 import { useModal } from "@/store/useModal";
+import UpdateDriverForm from "./UpdateDriverForm";
+import { endcodeNationalId, extractIdFromUrl } from "@/utils/helpers";
+import useGetDriver from "@/hooks/drivers/useGetDriver";
 
 const DriverDetails = () => {
     const { driver } = useCurrentDriverStore((state) => state);
@@ -31,7 +34,7 @@ const DriverDetails = () => {
     const { mutateAsync: deleteDriver } = useDeleteDriver();
     const { data: records } = useGetDriverMaintenance(driver?._id);
 
-    const { onOpen } = useModal();
+    const { onOpen, onClose } = useModal();
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
@@ -39,16 +42,10 @@ const DriverDetails = () => {
             day: "numeric",
         });
     };
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount);
-    };
-
     const handleEdit = (): void => {
-        alert("Edit functionality would redirect to edit form");
+        if (!driver) return;
+
+        onOpen(<UpdateDriverForm driver={driver} onClose={onClose} />);
     };
 
     const confirmDelete = async () => {
@@ -182,13 +179,15 @@ const DriverDetails = () => {
                                     <div className="flex items-start">
                                         <div className="bg-green-100 p-3 rounded-lg mr-4">
                                             <CreditCard className="w-5 h-5 text-green-600" />
-                                        </div>
+                                        </div>{" "}
                                         <div>
                                             <p className="text-sm font-medium text-gray-500">
                                                 National ID
                                             </p>
                                             <p className="text-lg text-gray-900 font-mono">
-                                                {driver.nationalId}
+                                                {endcodeNationalId(
+                                                    driver.nationalId
+                                                )}
                                             </p>
                                         </div>
                                     </div>
@@ -199,7 +198,7 @@ const DriverDetails = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium text-gray-500">
-                                                License Number
+                                                License Expiry Date
                                             </p>
                                             <p className="text-lg text-gray-900 font-mono">
                                                 {driver.licenseNumber}
@@ -324,22 +323,28 @@ const DriverDetails = () => {
                                                                 record.date
                                                             )}
                                                         </span>
-                                                    </div>
+                                                    </div>{" "}
                                                     <div className="flex items-center space-x-2">
-                                                        <DollarSign className="w-5 h-5 text-green-600" />
-                                                        <span className="text-lg font-bold text-green-600">
-                                                            {formatCurrency(
+                                                        <Price
+                                                            amount={
                                                                 record.cost ||
-                                                                    record.cost ||
-                                                                    0
-                                                            )}
-                                                        </span>
+                                                                record.cost ||
+                                                                0
+                                                            }
+                                                            size="lg"
+                                                            className="text-lg font-bold"
+                                                        />
                                                         {record.cost && (
                                                             <span className="text-sm text-gray-500">
                                                                 (Mechanic:{" "}
-                                                                {formatCurrency(
-                                                                    record.cost
-                                                                )}
+                                                                <Price
+                                                                    amount={
+                                                                        record.cost
+                                                                    }
+                                                                    showIcon={
+                                                                        false
+                                                                    }
+                                                                />
                                                                 )
                                                             </span>
                                                         )}

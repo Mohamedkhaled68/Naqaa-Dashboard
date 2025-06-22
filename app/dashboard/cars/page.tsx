@@ -10,7 +10,7 @@ import { ClipLoader } from "react-spinners";
 
 const cars = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const { data: cars, isLoading } = useGetCars(searchTerm);
+    const { data: cars, isLoading } = useGetCars(searchTerm.trim());
     const { onClose, onOpen } = useModal((state) => state);
 
     console.log(cars);

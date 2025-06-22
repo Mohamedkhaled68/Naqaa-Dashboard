@@ -19,7 +19,7 @@ const DriversTable = ({ drivers }: { drivers: Driver[] }) => {
                     Address
                 </div>
                 <div className="text-[#4e4e4e] text-[14px] font-[700]">
-                    License Number
+                    License Expiry Date
                 </div>
                 <div className="text-[#4e4e4e] text-[14px] font-[700]">
                     Phone Number

@@ -25,7 +25,7 @@ export type Category = {
 
 const categories = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const { data: categories, isLoading } = useGetCategories(searchTerm);
+    const { data: categories, isLoading } = useGetCategories(searchTerm.trim());
 
     console.log(categories);
 

@@ -2,16 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const useGetSubCategoriesFields = (id: string | undefined) => {
+const useGetDriver = (id: string) => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
-    return useQuery({
-        queryKey: ["subCategories", "getSubCategoriesFields", id],
-        queryFn: async () => {
-            if (!id) throw new Error("Subcategory ID is required");
 
+    return useQuery({
+        queryKey: ["drivers", "getDriver"],
+        queryFn: async () => {
             const response = await axios.get(
-                `${baseUrl}/subcategories/${id}/fields`,
+                `${baseUrl}/drivers/${id}`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -23,13 +22,11 @@ const useGetSubCategoriesFields = (id: string | undefined) => {
             console.log(response.data.data);
 
             return response.data.data;
-        }, // Disable caching
-        enabled: !!token && !!id,
-        staleTime: 0,
-        gcTime: 0,
-        refetchOnMount: true,
-        refetchOnWindowFocus: true,
+        },
+
+        enabled: !!token,
+        staleTime: 5 * 60 * 1000, // 5 minutes
     });
 };
 
-export default useGetSubCategoriesFields;
+export default useGetDriver;

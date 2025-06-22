@@ -1,17 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import {
-    Car,
-    Users,
-    Search,
-    Filter,
-    MoreVertical,
-    Eye,
-    Edit,
-    Trash2,
-} from "lucide-react";
+import { Car, Users, Search, Eye, Edit, Trash2 } from "lucide-react";
 import useTotalGetCars from "@/hooks/cars/useGetTotalCars";
 import useTotalGetDrivers from "@/hooks/drivers/useGetTotalDrivers";
+import Price from "@/components/Price";
 
 const DashboardCards = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -21,14 +13,12 @@ const DashboardCards = () => {
 
     console.log(totalCars);
 
-    // Mock data - replace with your actual data
-
-    // Mock table data
+    // Mock data - replace with your actual data    // Mock table data
     const tableData = [
         {
             id: 1,
             service: "Car Rental",
-            amount: "100 KD",
+            amount: 100,
             date: "May 16, 2025 - 5:23 PM",
             status: "completed",
             customer: "Ahmed Al-Rashid",
@@ -36,7 +26,7 @@ const DashboardCards = () => {
         {
             id: 2,
             service: "Car Rental",
-            amount: "100 KD",
+            amount: 100,
             date: "May 11, 2025 - 5:23 PM",
             status: "completed",
             customer: "Sarah Johnson",
@@ -44,7 +34,7 @@ const DashboardCards = () => {
         {
             id: 3,
             service: "Car Rental",
-            amount: "100 KD",
+            amount: 100,
             date: "May 16, 2025 - 5:23 PM",
             status: "rejected",
             customer: "Mike Chen",
@@ -52,7 +42,7 @@ const DashboardCards = () => {
         {
             id: 4,
             service: "Driver Service",
-            amount: "75 KD",
+            amount: 75,
             date: "May 15, 2025 - 3:45 PM",
             status: "completed",
             customer: "Fatima Al-Zahra",
@@ -60,7 +50,7 @@ const DashboardCards = () => {
         {
             id: 5,
             service: "Car Rental",
-            amount: "120 KD",
+            amount: 120,
             date: "May 14, 2025 - 2:30 PM",
             status: "pending",
             customer: "John Smith",
@@ -247,9 +237,10 @@ const DashboardCards = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-gray-900">
-                                            {item.amount}
-                                        </span>
+                                        <Price
+                                            amount={item.amount}
+                                            className="text-sm font-semibold"
+                                        />
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className="text-sm text-gray-600">

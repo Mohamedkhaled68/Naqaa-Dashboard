@@ -15,7 +15,7 @@ type Car = {
 type Driver = {
     _id: string;
     name: string;
-    car: Car;
+    car: Car | null; // Assuming a driver can have a car or not
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;

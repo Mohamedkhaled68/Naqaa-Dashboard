@@ -26,7 +26,7 @@ const CarTableRow = ({ car }: CarTableRowProps) => {
                 {car.year}
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
-                {car.color}
+                {car.meterReading} km
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[600]">
                 {car.plateNumber}

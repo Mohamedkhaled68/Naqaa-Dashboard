@@ -3,6 +3,7 @@ import React from "react";
 import { Edit, Save, X, Trash2 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import DriverSelector from "./DriverSelector";
+import Price from "@/components/Price";
 import SubCategorySelector from "./SubCategorySelector";
 import CustomFieldsSection from "./CustomFieldsSection";
 
@@ -128,7 +129,7 @@ const MaintenanceRecordItem: React.FC<MaintenanceRecordItemProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Maintenance Cost ($)
+                                Maintenance Cost (Riyal)
                             </label>
                             <input
                                 type="number"
@@ -143,7 +144,7 @@ const MaintenanceRecordItem: React.FC<MaintenanceRecordItemProps> = ({
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Mechanic Cost ($)
+                                Mechanic Cost (Riyal)
                             </label>
                             <input
                                 type="number"
@@ -271,12 +272,25 @@ const MaintenanceRecordItem: React.FC<MaintenanceRecordItemProps> = ({
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
                         <div>
-                            <span className="font-medium">Cost:</span> $
-                            {record.cost}
+                            <span className="font-medium">Cost:</span>{" "}
+                            <Price
+                                amount={Number(record.cost) || 0}
+                                showIcon={true}
+                            />
                         </div>
                         <div>
                             <span className="font-medium">Mechanic Cost:</span>{" "}
-                            ${record.mechanicCost}
+                            <Price
+                                amount={Number(record.mechanicCost) || 0}
+                                showIcon={true}
+                            />
+                        </div>
+                        <div>
+                            <span className="font-medium">Total Cost:</span>{" "}
+                            <Price
+                                amount={Number(record.mechanicCost + record.cost) || 0}
+                                showIcon={true}
+                            />
                         </div>
                         <div>
                             <span className="font-medium">Date:</span>{" "}

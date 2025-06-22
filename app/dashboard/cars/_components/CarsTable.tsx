@@ -22,7 +22,7 @@ const CarsTable = ({ cars }: { cars: Car[] }) => {
                         Year
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
-                        Color
+                        Meter Reading
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
                         Plate Number

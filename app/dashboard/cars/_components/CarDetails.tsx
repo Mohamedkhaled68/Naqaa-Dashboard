@@ -1,13 +1,7 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import {
-    Calendar,
-    Car,
-    User,
-    Wrench,
-    DollarSign,
-    ArrowUpDown,
-} from "lucide-react";
+import { Calendar, Car, User, Wrench, ArrowUpDown } from "lucide-react";
+import Price from "@/components/Price";
 import useDeleteCar from "@/hooks/cars/useDeleteCar";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 import { useRouter } from "next/navigation";
@@ -29,13 +23,6 @@ const CarDetails = () => {
             month: "long",
             day: "numeric",
         });
-    };
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount);
     };
 
     const handleDeleteCar = async () => {
@@ -142,9 +129,9 @@ const CarDetails = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="text-sm font-medium text-gray-500 mb-1">
                         Total Maintenance Cost
-                    </h3>
+                    </h3>{" "}
                     <p className="text-2xl font-semibold text-green-600">
-                        {formatCurrency(totalMaintenanceCost ?? 0)}
+                        <Price amount={totalMaintenanceCost ?? 0} />
                     </p>
                 </div>
             </div>
@@ -199,14 +186,13 @@ const CarDetails = () => {
                                     <span className="text-lg font-semibold text-gray-900">
                                         {formatDate(record.date)}
                                     </span>
-                                </div>
+                                </div>{" "}
                                 <div className="flex items-center space-x-2">
-                                    <DollarSign className="w-5 h-5 text-green-600" />
-                                    <span className="text-lg font-bold text-green-600">
-                                        {formatCurrency(
-                                            record.cost || record.cost || 0
-                                        )}
-                                    </span>
+                                    <Price
+                                        amount={record.cost || record.cost || 0}
+                                        size="lg"
+                                        className="text-lg font-bold"
+                                    />
                                 </div>
                             </div>
 
