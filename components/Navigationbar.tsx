@@ -1,5 +1,5 @@
 import React from "react";
-import { Car, House, LogOut } from "lucide-react";
+import { Car, House, LogOut, FileText } from "lucide-react";
 import { LiaIdCard } from "react-icons/lia";
 import NavigationTabs from "./NavigationTabs";
 import { BiCategory } from "react-icons/bi";
@@ -27,6 +27,11 @@ const tabs: any = [
         title: "categories",
         icon: <BiCategory />,
         path: "/dashboard/categories",
+    },
+    {
+        title: "requests",
+        icon: <FileText />,
+        path: "/dashboard/requests",
     },
 ];
 
