@@ -54,7 +54,7 @@ const SubCategorySelector: React.FC<SubCategorySelectorProps> = ({
                     Sub Categories *
                 </label>
                 <input
-                    onChange={(e) => onSearchChange(e.target.value.trim())}
+                    onChange={(e) => onSearchChange(e.target.value)}
                     value={searchTerm}
                     className="py-2 pl-[15px] pr-[10px] rounded-[5px] border border-[#D8D6DE] placeholder:text-[#B9B9C3] text-[12px] font-normal text-[#6E6B7B] outline-none"
                     type="text"
