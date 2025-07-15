@@ -52,7 +52,7 @@ const CarDetails = () => {
 
     const totalMaintenanceCost = car?.maintenanceHistory.reduce(
         (total, record) => {
-            const cost = record.cost || record.cost || 0;
+            const cost = (record.cost || 0) + (record.mechanicCost || 0);
             return total + cost;
         },
         0
