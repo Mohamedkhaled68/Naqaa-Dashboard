@@ -189,7 +189,7 @@ const CarDetails = () => {
                                 </div>{" "}
                                 <div className="flex items-center space-x-2">
                                     <Price
-                                        amount={record.cost || record.cost || 0}
+                                        amount={(record.cost || 0) + (record.mechanicCost || 0)}
                                         size="lg"
                                         className="text-lg font-bold"
                                     />
