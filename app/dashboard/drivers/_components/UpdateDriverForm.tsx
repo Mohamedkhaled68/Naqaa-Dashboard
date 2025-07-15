@@ -85,7 +85,7 @@ const UpdateDriverForm: React.FC<UpdateDriverFormProps> = ({
         if (
             formData.address &&
             formData.address.trim().length > 0 &&
-            formData.address.trim().length < 10
+            formData.address.trim().length < 4
         ) {
             newErrors.address = "Please provide a complete address";
         }
