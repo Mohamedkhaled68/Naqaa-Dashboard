@@ -7,12 +7,13 @@ import DriversTable from "./_components/DriversTable";
 import { ClipLoader } from "react-spinners";
 import { useModal } from "@/store/useModal";
 import CreateDriverForm from "./_components/CreateDriverForm";
+import { useCanAddDriver } from "@/utils/permissions";
 
 const drivers = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: drivers, isLoading } = useGetDrivers(searchTerm.trim());
-
     const { onOpen, onClose } = useModal();
+    const canAddDriver = useCanAddDriver();
 
     return (
         <GridContainer className="flex flex-col pb-[10px]">
@@ -20,14 +21,16 @@ const drivers = () => {
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 pageOption={
-                    <button
-                        onClick={() => {
-                            onOpen(<CreateDriverForm onClose={onClose} />);
-                        }}
-                        className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
-                    >
-                        Add Driver
-                    </button>
+                    canAddDriver ? (
+                        <button
+                            onClick={() => {
+                                onOpen(<CreateDriverForm onClose={onClose} />);
+                            }}
+                            className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
+                        >
+                            Add Driver
+                        </button>
+                    ) : null
                 }
             />
             {isLoading || !drivers ? (

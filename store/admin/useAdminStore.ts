@@ -7,7 +7,7 @@ interface Admin {
     email: string;
     phoneNumber: string;
     isActive: boolean;
-    role: string;
+    role: "admin" | "accountant";
     createdAt: string;
     updatedAt: string;
 }

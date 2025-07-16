@@ -7,14 +7,15 @@ import { useModal } from "@/store/useModal";
 import CreateCarForm from "./_components/CreateCarForm";
 import useGetCars from "@/hooks/cars/useGetCars";
 import { ClipLoader } from "react-spinners";
+import { useCanAddCar } from "@/utils/permissions";
 
 const cars = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: cars, isLoading } = useGetCars(searchTerm.trim());
     const { onClose, onOpen } = useModal((state) => state);
+    const canAddCar = useCanAddCar();
 
     console.log(cars);
-    
 
     return (
         <GridContainer className="flex flex-col pb-[10px]">
@@ -22,14 +23,16 @@ const cars = () => {
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 pageOption={
-                    <button
-                        onClick={() => {
-                            onOpen(<CreateCarForm onClose={onClose} />);
-                        }}
-                        className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
-                    >
-                        Add Car
-                    </button>
+                    canAddCar ? (
+                        <button
+                            onClick={() => {
+                                onOpen(<CreateCarForm onClose={onClose} />);
+                            }}
+                            className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
+                        >
+                            Add Car
+                        </button>
+                    ) : null
                 }
             />
             {isLoading || !cars ? (

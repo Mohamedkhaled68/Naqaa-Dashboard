@@ -2,14 +2,38 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const useGetSubCategories = () => {
+export interface SubCategoryFilters {
+    name?: string;
+    description?: string;
+}
+
+const useGetSubCategories = (filters?: SubCategoryFilters) => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
     const token = Cookies.get("token");
 
+    // Build query parameters
+    const buildQueryParams = () => {
+        const params = new URLSearchParams();
+
+        if (filters?.name) {
+            params.append("name", filters.name);
+        }
+        if (filters?.description) {
+            params.append("description", filters.description);
+        }
+
+        return params.toString();
+    };
+
     return useQuery({
-        queryKey: ["subCategories", "getSubCategories"],
+        queryKey: ["subCategories", "getSubCategories", filters],
         queryFn: async () => {
-            const response = await axios.get(`${baseUrl}/subcategories`, {
+            const queryParams = buildQueryParams();
+            const url = queryParams
+                ? `${baseUrl}/subcategories?${queryParams}`
+                : `${baseUrl}/subcategories`;
+
+            const response = await axios.get(url, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,

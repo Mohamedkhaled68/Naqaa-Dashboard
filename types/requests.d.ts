@@ -23,7 +23,7 @@ export interface Request {
         subcategoryId: string;
         _id: string;
     }>;
-    status: "underReview" | "approved" | "rejected";
+    status: "open" | "accepted" | "rejected" | "underReview" | "completed";
     receiptImage: string;
     cost: number;
     mechanicCost: number;

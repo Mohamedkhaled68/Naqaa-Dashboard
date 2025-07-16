@@ -7,6 +7,7 @@ import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/store/useModal";
 import DeletionWarningModal from "@/components/DeletionWarningModal";
+import { useCanDeleteCar, useCanEditCar } from "@/utils/permissions";
 
 const CarDetails = () => {
     const { car } = useCurrentCarStore((state) => state);
@@ -14,8 +15,11 @@ const CarDetails = () => {
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
     const { onOpen } = useModal();
-
     const router = useRouter();
+
+    // Permission checks
+    const canDeleteCar = useCanDeleteCar();
+    const canEditCar = useCanEditCar();
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
@@ -189,7 +193,10 @@ const CarDetails = () => {
                                 </div>{" "}
                                 <div className="flex items-center space-x-2">
                                     <Price
-                                        amount={(record.cost || 0) + (record.mechanicCost || 0)}
+                                        amount={
+                                            (record.cost || 0) +
+                                            (record.mechanicCost || 0)
+                                        }
                                         size="lg"
                                         className="text-lg font-bold"
                                     />
@@ -263,32 +270,36 @@ const CarDetails = () => {
                 </div>
 
                 <div className="flex items-center gap-3 mt-6">
-                    {/* Delete Button */}
-                    <div>
-                        <button
-                            className="cursor-pointer px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
-                            onClick={() => {
-                                onOpen(
-                                    <DeletionWarningModal
-                                        deleteFunc={handleDeleteCar}
-                                        id={car._id}
-                                        item="car"
-                                    />
-                                );
-                            }}
-                        >
-                            Delete Car
-                        </button>
-                    </div>
-                    {/* Update Button */}
-                    <div>
-                        <button
-                            onClick={() => handleUpdateNav(car)}
-                            className="cursor-pointer px-4 py-2 bg-orange-400 text-white text-sm rounded hover:bg-orange-500 transition"
-                        >
-                            Update Car
-                        </button>
-                    </div>
+                    {/* Delete Button - Only show for admin */}
+                    {canDeleteCar && (
+                        <div>
+                            <button
+                                className="cursor-pointer px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+                                onClick={() => {
+                                    onOpen(
+                                        <DeletionWarningModal
+                                            deleteFunc={handleDeleteCar}
+                                            id={car._id}
+                                            item="car"
+                                        />
+                                    );
+                                }}
+                            >
+                                Delete Car
+                            </button>
+                        </div>
+                    )}
+                    {/* Update Button - Show for both admin and accountant */}
+                    {canEditCar && (
+                        <div>
+                            <button
+                                onClick={() => handleUpdateNav(car)}
+                                className="cursor-pointer px-4 py-2 bg-orange-400 text-white text-sm rounded hover:bg-orange-500 transition"
+                            >
+                                Update Car
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

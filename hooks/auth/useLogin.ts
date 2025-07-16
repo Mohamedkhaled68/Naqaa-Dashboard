@@ -24,6 +24,8 @@ const useLogin = () => {
                 },
             });
 
+            
+
             // Save token in cookies
             if (response.data.token) {
                 Cookies.set("token", response.data.token, {
@@ -33,9 +35,9 @@ const useLogin = () => {
                 });
             }
 
-            // Store admin data in Zustand store
-            if (response.data.admin) {
-                setAdmin(response.data.admin);
+            // Store user data in Zustand store
+            if (response.data.user) {
+                setAdmin(response.data.user);
             }
             return response.data;
         },

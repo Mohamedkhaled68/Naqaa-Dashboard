@@ -7,6 +7,7 @@ import CategoriesTable from "./_components/CategoriesTable";
 import { useModal } from "@/store/useModal";
 import CreateCategoryForm from "./_components/CreateCategoryForm";
 import { ClipLoader } from "react-spinners";
+import { useCanAddCategory } from "@/utils/permissions";
 
 type SubCategory = {
     _id: string;
@@ -26,10 +27,10 @@ export type Category = {
 const categories = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: categories, isLoading } = useGetCategories(searchTerm.trim());
+    const { onOpen } = useModal();
+    const canAddCategory = useCanAddCategory();
 
     console.log(categories);
-
-    const { onOpen } = useModal();
 
     return (
         <GridContainer className="flex flex-col pb-[10px]">
@@ -37,14 +38,16 @@ const categories = () => {
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 pageOption={
-                    <button
-                        onClick={() => {
-                            onOpen(<CreateCategoryForm />);
-                        }}
-                        className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
-                    >
-                        Add Category
-                    </button>
+                    canAddCategory ? (
+                        <button
+                            onClick={() => {
+                                onOpen(<CreateCategoryForm />);
+                            }}
+                            className="cursor-pointer py-2 px-[38px] rounded-[5px] bg-[#222] text-[12px] font-normal text-[#fff] outline-none"
+                        >
+                            Add Category
+                        </button>
+                    ) : null
                 }
             />
             {isLoading || !categories ? (
