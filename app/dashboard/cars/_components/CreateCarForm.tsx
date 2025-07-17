@@ -3,12 +3,6 @@ import { Car, X, Loader2, CheckCircle } from "lucide-react";
 import { brands } from "@/utils/carBrands";
 import useCreateCar from "@/hooks/cars/useCreateCar";
 
-const carStatuses: { status: string; label: string; color: string }[] = [
-    { status: "available", label: "Available", color: "text-green-600" },
-    { status: "in_use", label: "In use", color: "text-blue-600" },
-    { status: "maintenance", label: "Maintenance", color: "text-yellow-600" },
-];
-
 const carColors = [
     { value: "red", label: "Red", hex: "#EF4444" },
     { value: "black", label: "Black", hex: "#1F2937" },
@@ -24,7 +18,6 @@ const initialCarValues = {
     model: "",
     year: "",
     color: "",
-    status: "available",
 };
 
 const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
@@ -58,9 +51,6 @@ const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
         }
         if (!initialValues.color) {
             newErrors.color = "Color is required";
-        }
-        if (!initialValues.status) {
-            newErrors.status = "Status is required";
         }
 
         setErrors(newErrors);
@@ -105,6 +95,7 @@ const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
             await createCar({
                 ...initialValues,
                 year: Number(initialValues.year),
+                status: "available",
             });
 
             setInitialValues(initialCarValues);
@@ -316,57 +307,6 @@ const CreateCarForm = ({ onClose }: { onClose: () => void }) => {
                         {errors.color && (
                             <p className="text-red-500 text-sm mt-1">
                                 {errors.color}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Status */}
-                    <div className="md:col-span-2">
-                        <label
-                            htmlFor="carStatus"
-                            className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                            Status *
-                        </label>
-                        <div className="grid grid-cols-3 gap-3">
-                            {carStatuses.map((status) => (
-                                <label
-                                    key={status.status}
-                                    className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all hover:bg-gray-50 ${
-                                        initialValues.status === status.status
-                                            ? "border-blue-500 bg-blue-50"
-                                            : "border-gray-200"
-                                    }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="status"
-                                        value={status.status}
-                                        checked={
-                                            initialValues.status ===
-                                            status.status
-                                        }
-                                        onChange={(e) =>
-                                            handleSelectChange(e as any)
-                                        }
-                                        className="sr-only"
-                                    />
-                                    <span
-                                        className={`text-sm font-medium ${
-                                            initialValues.status ===
-                                            status.status
-                                                ? "text-blue-700"
-                                                : "text-gray-700"
-                                        }`}
-                                    >
-                                        {status.label}
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                        {errors.status && (
-                            <p className="text-red-500 text-sm mt-1">
-                                {errors.status}
                             </p>
                         )}
                     </div>

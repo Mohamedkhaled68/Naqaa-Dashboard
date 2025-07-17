@@ -1,5 +1,3 @@
-import React from "react";
-
 export const formatDate = (date: string) => {
     const options: Intl.DateTimeFormatOptions = {
         year: "numeric",
@@ -9,6 +7,16 @@ export const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", options);
 };
 
+export const formatDateForInput = (dateString: string | undefined): string => {
+    if (!dateString) return "";
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+        return date.toISOString().split('T')[0];
+    } catch (error) {
+        return "";
+    }
+};
 // Price formatting utilities for Saudi Riyal
 export const formatPrice = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {

@@ -8,7 +8,7 @@ type DriverToApi = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
+    address?: string;
 };
 
 interface DriverSelectorProps {
@@ -24,7 +24,7 @@ const DriverSelector: React.FC<DriverSelectorProps> = ({
     selectedDriverId,
     onAddDriver,
     onRemoveDriver,
-    validationError
+    validationError,
 }) => {
     return (
         <div>
@@ -34,9 +34,7 @@ const DriverSelector: React.FC<DriverSelectorProps> = ({
                 </label>
             </div>
             {validationError && (
-                <p className="text-red-500 text-sm mb-2">
-                    {validationError}
-                </p>
+                <p className="text-red-500 text-sm mb-2">{validationError}</p>
             )}
 
             <div className="grid grid-cols-3 gap-5">
@@ -47,13 +45,9 @@ const DriverSelector: React.FC<DriverSelectorProps> = ({
                             <div
                                 key={driver._id}
                                 className={`rounded-sm ${
-                                    isSelected
-                                        ? "bg-green-500"
-                                        : "bg-white"
+                                    isSelected ? "bg-green-500" : "bg-white"
                                 } transition-all duration-300 shadow-md p-4 flex justify-between items-center ${
-                                    validationError
-                                        ? "ring-2 ring-red-200"
-                                        : ""
+                                    validationError ? "ring-2 ring-red-200" : ""
                                 }`}
                             >
                                 <div className="flex flex-col">

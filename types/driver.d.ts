@@ -4,6 +4,6 @@ type Driver = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
-    car: Car;
+    address?: string;
+    car?: Car;
 };

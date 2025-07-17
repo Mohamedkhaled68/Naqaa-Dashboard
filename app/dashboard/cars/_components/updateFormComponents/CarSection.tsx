@@ -8,6 +8,20 @@ type CarSectionProps = {
     handleCarUpdate: (field: string, value: string) => void;
 };
 
+// Helper function to format date for HTML date input
+const formatDateForInput = (dateString: string | undefined): string => {
+    if (!dateString) return "";
+    try {
+        const date = new Date(dateString);
+        // Check if date is valid
+        if (isNaN(date.getTime())) return "";
+        // Return YYYY-MM-DD format
+        return date.toISOString().split("T")[0];
+    } catch (error) {
+        return "";
+    }
+};
+
 const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
     const [carModels, setCarModels] = useState<string[]>([]);
 
@@ -36,7 +50,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                     </label>
                     <input
                         type="text"
-                        value={car.plateNumber}
+                        value={car.plateNumber || ""}
                         onChange={(e) =>
                             handleCarUpdate("plateNumber", e.target.value)
                         }
@@ -49,7 +63,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                         Status
                     </label>
                     <select
-                        value={car.status}
+                        value={car.status || "available"}
                         onChange={(e) =>
                             handleCarUpdate("status", e.target.value)
                         }
@@ -66,7 +80,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                         Brand
                     </label>
                     <select
-                        value={car.brand}
+                        value={car.brand || ""}
                         onChange={(e) =>
                             handleCarUpdate("brand", e.target.value)
                         }
@@ -74,6 +88,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                         id="brand"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
+                        <option value="">Select a brand</option>
                         {brands.map((brand) => (
                             <option key={brand.brand} value={brand.brand}>
                                 {brand.brand}
@@ -87,9 +102,9 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                         Model
                     </label>
                     <select
-                        value={car.model}
+                        value={car.model || ""}
                         onChange={(e) =>
-                            handleCarUpdate("brand", e.target.value)
+                            handleCarUpdate("model", e.target.value)
                         }
                         id="model"
                         name="model"
@@ -115,7 +130,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                     </label>
                     <input
                         type="number"
-                        value={car.year}
+                        value={car.year || ""}
                         onChange={(e) =>
                             handleCarUpdate("year", e.target.value)
                         }
@@ -129,7 +144,7 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                     </label>
                     <input
                         type="text"
-                        value={car.color}
+                        value={car.color || ""}
                         onChange={(e) =>
                             handleCarUpdate("color", e.target.value)
                         }
@@ -143,9 +158,45 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
                     </label>
                     <input
                         type="number"
-                        value={car.meterReading}
+                        value={car.meterReading || ""}
                         onChange={(e) =>
                             handleCarUpdate("meterReading", e.target.value)
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Insurance Date
+                    </label>
+                    <input
+                        type="date"
+                        value={formatDateForInput(car.insuranceDate)}
+                        onChange={(e) =>
+                            handleCarUpdate(
+                                "insuranceDate",
+                                e.target.value
+                                    ? new Date(e.target.value).toISOString()
+                                    : ""
+                            )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Examination Date
+                    </label>
+                    <input
+                        type="date"
+                        value={formatDateForInput(car.examinationDate)}
+                        onChange={(e) =>
+                            handleCarUpdate(
+                                "examinationDate",
+                                e.target.value
+                                    ? new Date(e.target.value).toISOString()
+                                    : ""
+                            )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />

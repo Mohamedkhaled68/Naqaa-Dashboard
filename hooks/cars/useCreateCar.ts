@@ -9,7 +9,6 @@ export type CreateCarData = {
     model: string;
     year: number;
     color: string;
-    // driver: string;
     status: string;
 };
 

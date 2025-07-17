@@ -1,6 +1,3 @@
-import useGetCarById from "@/hooks/cars/useGetCarById";
-import useGetDriver from "@/hooks/drivers/useGetDriver";
-import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 import { useCurrentDriverStore } from "@/store/drivers/useCurrentDriverStore";
 import { endcodeNationalId } from "@/utils/helpers";
 import { useRouter } from "next/navigation";
@@ -34,7 +31,6 @@ const DriverTableRow = ({ driver }: DriverTableRowProps) => {
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
                 {driver.licenseNumber}
             </div>
-
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
                 {driver.phoneNumber}
             </div>

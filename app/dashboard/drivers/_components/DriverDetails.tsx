@@ -70,7 +70,7 @@ const DriverDetails = () => {
         switch (status.toLowerCase()) {
             case "available":
                 return "text-green-600 bg-green-100";
-            case "busy":
+            case "in-use":
                 return "text-red-600 bg-red-100";
             case "maintenance":
                 return "text-yellow-600 bg-yellow-100";

@@ -11,21 +11,27 @@ const CarsTable = ({ cars }: { cars: Car[] }) => {
     return (
         <>
             <>
-                <div className="w-full grid grid-cols-6 justify-items-center px-[42px] py-[22px] bg-[#fcfcfc]">
+                <div className="w-full grid grid-cols-8 justify-items-center px-[42px] py-[22px] bg-[#fcfcfc]">
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
                         Brand
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
                         Model
                     </div>
-                    <div className="text-[#4e4e4e] text-[14px] font-[700]">
-                        Year
+                    <div className="text-[#4e4e4e] text-center text-[14px] font-[700]">
+                        Oil Change Reminder
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
                         Meter Reading
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
-                        Plate Number
+                        Insurance
+                    </div>
+                    <div className="text-[#4e4e4e] text-[14px] font-[700]">
+                        Examination
+                    </div>
+                    <div className="text-[#4e4e4e] text-[14px] font-[700]">
+                        Plate
                     </div>
                     <div className="text-[#4e4e4e] text-[14px] font-[700]">
                         Car details

@@ -13,7 +13,7 @@ type DriverToApi = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
+    address?: string;
 };
 
 type SubCategory = {
@@ -288,7 +288,10 @@ const MaintenanceRecordItem: React.FC<MaintenanceRecordItemProps> = ({
                         <div>
                             <span className="font-medium">Total Cost:</span>{" "}
                             <Price
-                                amount={Number(record.mechanicCost + record.cost) || 0}
+                                amount={
+                                    Number(record.mechanicCost + record.cost) ||
+                                    0
+                                }
                                 showIcon={true}
                             />
                         </div>

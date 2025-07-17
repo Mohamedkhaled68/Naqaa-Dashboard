@@ -1,7 +1,6 @@
 import GridContainer from "@/components/GridContainer";
 import React from "react";
 import DriverDetails from "../_components/DriverDetails";
-// import CarDetails from "../_components/CarDetails";
 
 const Page = () => {
     return (

@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
+import { formatDate, formatDateForInput } from "@/utils/helpers";
 
 export type CarTableRowProps = {
     car: Car;
@@ -15,7 +16,7 @@ const CarTableRow = ({ car }: CarTableRowProps) => {
         router.push(`/dashboard/cars/${car._id}`);
     };
     return (
-        <div className="w-full grid grid-cols-6 justify-items-center px-[42px] py-[22px]">
+        <div className="w-full grid grid-cols-8 justify-items-center px-[42px] py-[22px]">
             <div className="text-[#000] text-[14px] font-[400]">
                 {car.brand}
             </div>
@@ -23,10 +24,16 @@ const CarTableRow = ({ car }: CarTableRowProps) => {
                 {car.model}
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
-                {car.year}
+                {car.oilChangeReminderKM} km
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[400]">
                 {car.meterReading} km
+            </div>
+            <div className="text-[#6E6B7B] text-[14px] font-[600]">
+                {car.insuranceDate ? formatDateForInput(car.insuranceDate) : "--"}
+            </div>
+            <div className="text-[#6E6B7B] text-[14px] font-[600]">
+                {car.examinationDate ? formatDateForInput(car.examinationDate) : "--"}
             </div>
             <div className="text-[#6E6B7B] text-[14px] font-[600]">
                 {car.plateNumber}

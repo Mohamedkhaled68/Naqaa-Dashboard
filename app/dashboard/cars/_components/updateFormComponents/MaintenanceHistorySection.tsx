@@ -15,7 +15,7 @@ type DriverToApi = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
-    address: string;
+    address?: string;
 };
 
 type CustomField = {

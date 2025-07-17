@@ -1,3 +1,18 @@
+type Driver = {
+    _id: string;
+    name: string;
+    phoneNumber: string;
+    nationalId: string;
+    licenseNumber: string;
+    address?: string;
+    car: Car | null; // Can be a Car object or a string ID
+};
+
+type MeterReading = {
+    reading: number;
+    date: string; // ISO string
+};
+
 type MaintenanceRecord = {
     _id: string;
     car: string;
@@ -36,20 +51,19 @@ type Car = {
     plateNumber: string;
     brand: string;
     model: string;
-    driver: {
-        _id: string;
-        name: string;
-        phoneNumber: string;
-        nationalId: string;
-        licenseNumber: string;
-        address: string;
-    }[];
-    maintenanceHistory: MaintenanceRecord[];
     year: number;
     color: string;
-    status: string;
+    status: "in_use" | "available" | "maintenance" | string; // extend as needed
+    driver: Driver[];
+    maintenanceHistory: MaintenanceRecord[];
     meterReading: number;
-    lastMeterUpdate: string;
-    createdAt: string;
-    updatedAt: string;
+    lastOCRCheck: number;
+    oilChangeReminderKM: number;
+    oilChangeKM: number; // derived field
+    examinationDate?: string; // ISO date string - optional
+    insuranceDate?: string; // ISO date string - optional
+    lastMeterUpdate: string; // ISO date string
+    meterReadingsHistory: MeterReading[];
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
 };
