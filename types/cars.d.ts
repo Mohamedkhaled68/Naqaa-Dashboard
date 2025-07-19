@@ -11,6 +11,7 @@ type Driver = {
 type MeterReading = {
     reading: number;
     date: string; // ISO string
+    _id?: string; // Optional ID field
 };
 
 type MaintenanceRecord = {

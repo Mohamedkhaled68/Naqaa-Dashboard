@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAdminStore } from "@/store/admin/useAdminStore";
 import toast from "react-hot-toast";
+import Image from "next/image";
 const tabs: any = [
     {
         title: "dashboard",
@@ -54,8 +55,18 @@ const Navigationbar = () => {
         <div className="bg-[#222] text-white text-lg text-center p-5 h-screen col-span-2 sticky top-0">
             <div className="h-full w-full px-[15px] pt-[25px] flex flex-col gap-[63px]">
                 <div className="overflow-hidden px-[15px]">
-                    {/* <AmenLogo className="w-[100px] h-[50px]" /> */}
-                    <h1 className="text-4xl text-white font-medium">Naqaa</h1>
+                    <div className="flex items-center justify-center gap-3">
+                        <Image
+                            src="/logo.svg"
+                            alt="Naqaa Logo"
+                            width={40}
+                            height={40}
+                            className="text-white"
+                        />
+                        <h1 className="text-4xl text-white font-medium">
+                            Naqaa
+                        </h1>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-4">
                     {tabs.map((tab: any) => (

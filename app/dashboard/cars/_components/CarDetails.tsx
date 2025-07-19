@@ -1,12 +1,20 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Calendar, Car, User, Wrench, ArrowUpDown } from "lucide-react";
+import {
+    Calendar,
+    Car,
+    User,
+    Wrench,
+    ArrowUpDown,
+    History,
+} from "lucide-react";
 import Price from "@/components/Price";
 import useDeleteCar from "@/hooks/cars/useDeleteCar";
 import { useCurrentCarStore } from "@/store/cars/useCurrentCarStore";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/store/useModal";
 import DeletionWarningModal from "@/components/DeletionWarningModal";
+import MeterReadingsHistoryModal from "./MeterReadingsHistoryModal";
 import { useCanDeleteCar, useCanEditCar } from "@/utils/permissions";
 
 const CarDetails = () => {
@@ -50,6 +58,15 @@ const CarDetails = () => {
 
     const handleUpdateNav = (car: Car) => {
         router.push(`/dashboard/cars/${car._id}/update`);
+    };
+
+    const handleOpenMeterReadingsHistory = () => {
+        onOpen(
+            <MeterReadingsHistoryModal
+                readings={car?.meterReadingsHistory || []}
+                carName={`${car?.brand} ${car?.model} - ${car?.plateNumber}`}
+            />
+        );
     };
 
     const totalMaintenanceCost = car?.maintenanceHistory.reduce(
@@ -98,7 +115,7 @@ const CarDetails = () => {
                         car?.status
                     )}`}
                 >
-                    {car?.status === "in-use" ? "in use" : car?.status}
+                    {car?.status === "in_use" ? "in use" : car?.status}
                 </span>
             </div>
 
@@ -121,11 +138,26 @@ const CarDetails = () => {
                     </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">
-                        Meter Reading
-                    </h3>
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-sm font-medium text-gray-500">
+                            Meter Reading
+                        </h3>
+                        {car?.meterReadingsHistory &&
+                            car.meterReadingsHistory.length > 0 && (
+                                <button
+                                    onClick={handleOpenMeterReadingsHistory}
+                                    className="cursor-pointer flex items-center space-x-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                    title="View meter readings history"
+                                >
+                                    <History className="w-3 h-3" />
+                                    <span>History</span>
+                                </button>
+                            )}
+                    </div>
                     <p className="text-2xl font-semibold text-gray-900">
-                        {car?.meterReading.toLocaleString()}
+                        {car?.meterReading
+                            ? car?.meterReading.toLocaleString()
+                            : "N/A"}
                     </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">

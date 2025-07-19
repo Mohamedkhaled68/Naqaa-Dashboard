@@ -6,6 +6,11 @@ export const metadata: Metadata = {
     title: "Naqaa - Dashboard",
     description:
         "A powerful and intuitive dashboard for managing Naqaa's services and operations efficiently.",
+    icons: {
+        icon: "/logo.svg",
+        shortcut: "/logo.svg",
+        apple: "/logo.svg",
+    },
 };
 
 export default function RootLayout({
