@@ -154,6 +154,19 @@ const CarSection = ({ handleCarUpdate, car }: CarSectionProps) => {
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Oil ChangeReminder
+                    </label>
+                    <input
+                        type="number"
+                        value={car.oilChangeReminderKM || ""}
+                        onChange={(e) =>
+                            handleCarUpdate("oilChangeReminderKM", e.target.value)
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                         Meter Reading
                     </label>
                     <input

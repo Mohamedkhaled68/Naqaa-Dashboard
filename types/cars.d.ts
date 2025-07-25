@@ -61,6 +61,9 @@ type Car = {
     lastOCRCheck: number;
     oilChangeReminderKM: number;
     oilChangeKM: number; // derived field
+    oilMustChange: boolean;
+    oilChangeReminderPoint: number; // derived field
+    oilChangeInterval: number; // derived field
     examinationDate?: string; // ISO date string - optional
     insuranceDate?: string; // ISO date string - optional
     lastMeterUpdate: string; // ISO date string
