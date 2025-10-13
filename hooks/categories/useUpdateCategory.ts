@@ -10,7 +10,7 @@ type UpdateCategoryData = {
 };
 
 const useUpdateCategory = () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
     const queryClient = useQueryClient();
 

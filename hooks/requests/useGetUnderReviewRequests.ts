@@ -4,7 +4,7 @@ import { Request } from "@/types/requests";
 import Cookies from "js-cookie";
 
 const fetchRequests = async () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
 
     const response = await axios.get(

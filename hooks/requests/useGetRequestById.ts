@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 
 const useGetRequestById = (requestId: string) => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
     return useQuery({
         queryKey: ["request", requestId],

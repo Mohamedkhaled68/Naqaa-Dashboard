@@ -13,7 +13,7 @@ export type CreateCarData = {
 };
 
 const useCreateCar = () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
     const router = useRouter();
     const queryClient = useQueryClient(); // Add this

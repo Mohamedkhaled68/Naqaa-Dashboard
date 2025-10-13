@@ -14,7 +14,7 @@ const useLogin = () => {
     const router = useRouter();
     const setAdmin = useAdminStore((state) => state.setAdmin);
 
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     return useMutation({
         mutationKey: ["auth", "login"],
         mutationFn: async (data: UserLoginData) => {
@@ -23,8 +23,6 @@ const useLogin = () => {
                     "Content-Type": "application/json",
                 },
             });
-
-            
 
             // Save token in cookies
             if (response.data.token) {

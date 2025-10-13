@@ -8,7 +8,7 @@ export interface SubCategoryFilters {
 }
 
 const useGetSubCategories = (filters?: SubCategoryFilters) => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
 
     // Build query parameters

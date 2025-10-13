@@ -3,21 +3,18 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const useGetDriver = (id: string) => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
     const token = Cookies.get("token");
 
     return useQuery({
         queryKey: ["drivers", "getDriver"],
         queryFn: async () => {
-            const response = await axios.get(
-                `${baseUrl}/drivers/${id}`,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await axios.get(`${baseUrl}/drivers/${id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
             console.log(response.data.data);
 
