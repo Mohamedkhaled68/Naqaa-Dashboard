@@ -22,6 +22,7 @@ const RequestDetailsPage = () => {
     const [isCompleting, setIsCompleting] = useState(false);
 
     const { data: request, isLoading, error } = useGetRequestById(requestId);
+    console.log("RequestID Data:", request);
     const { mutateAsync: completeRequest, isPending } = useCompleteRequest();
 
     const formatDate = (dateString: string) => {
@@ -35,7 +36,7 @@ const RequestDetailsPage = () => {
     };
 
     const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
+        switch (status?.toLowerCase()) {
             case "open":
                 return "text-blue-600 bg-blue-100";
             case "accepted":
@@ -311,7 +312,15 @@ const RequestDetailsPage = () => {
                                     Created At
                                 </p>
                                 <p className="font-medium text-gray-900">
-                                    {formatDate(request.createdAt)}
+                                    
+                                    {
+                                        request.createdAt &&
+                                        formatDate(request.createdAt)
+                                    }
+                                    {
+                                        request.date &&
+                                        formatDate(request.date)
+                                    }
                                 </p>
                             </div>
                         </div>

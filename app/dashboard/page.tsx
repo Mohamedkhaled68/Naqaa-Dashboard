@@ -1,83 +1,55 @@
 "use client";
 import React, { useState } from "react";
-import { Car, Users, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { Car, Users, Search, Eye } from "lucide-react";
 import useTotalGetCars from "@/hooks/cars/useGetTotalCars";
 import useTotalGetDrivers from "@/hooks/drivers/useGetTotalDrivers";
+import useGetLastMaintenanceRequests from "@/hooks/requests/useGetLastMaintenanceRequests";
 import Price from "@/components/Price";
+import { useRouter } from "next/navigation";
 
 const DashboardCards = () => {
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
     const { data: totalCars } = useTotalGetCars();
     const { data: totalDrivers } = useTotalGetDrivers();
+    const { data: maintenanceData, isLoading } =
+        useGetLastMaintenanceRequests();
 
     console.log(totalCars);
 
-    // Mock data - replace with your actual data    // Mock table data
-    const tableData = [
-        {
-            id: 1,
-            service: "Car Rental",
-            amount: 100,
-            date: "May 16, 2025 - 5:23 PM",
-            status: "completed",
-            customer: "Ahmed Al-Rashid",
-        },
-        {
-            id: 2,
-            service: "Car Rental",
-            amount: 100,
-            date: "May 11, 2025 - 5:23 PM",
-            status: "completed",
-            customer: "Sarah Johnson",
-        },
-        {
-            id: 3,
-            service: "Car Rental",
-            amount: 100,
-            date: "May 16, 2025 - 5:23 PM",
-            status: "rejected",
-            customer: "Mike Chen",
-        },
-        {
-            id: 4,
-            service: "Driver Service",
-            amount: 75,
-            date: "May 15, 2025 - 3:45 PM",
-            status: "completed",
-            customer: "Fatima Al-Zahra",
-        },
-        {
-            id: 5,
-            service: "Car Rental",
-            amount: 120,
-            date: "May 14, 2025 - 2:30 PM",
-            status: "pending",
-            customer: "John Smith",
-        },
-    ];
+    // Get maintenance records from API
+    const maintenanceRecords =
+        maintenanceData?.data.recentMaintenanceRecords.data || [];
+    const statistics = maintenanceData?.data.statistics;
 
-    const getStatusColor = (status: any) => {
-        switch (status) {
-            case "completed":
-                return "bg-green-100 text-green-800";
-            case "pending":
-                return "bg-yellow-100 text-yellow-800";
-            case "rejected":
-                return "bg-red-100 text-red-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
+    // Format date to readable format
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     };
 
-    const filteredData = tableData.filter((item) => {
+    const filteredData = maintenanceRecords.filter((item) => {
         const matchesSearch =
-            item.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.service.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus =
-            statusFilter === "all" || item.status === statusFilter;
-        return matchesSearch && matchesStatus;
+            item.driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.car.plateNumber
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            item.car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.subCategories.some((sub) =>
+                sub.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        return matchesSearch;
     });
+
+    const handleView = (id: string) => {
+        router.push(`/dashboard/requests/${id}`);
+    };
 
     return (
         <div className="space-y-8">
@@ -105,7 +77,9 @@ const DashboardCards = () => {
                     {/* Optional: Add trend indicator */}
                     <div className="mt-4 flex items-center text-sm text-blue-100">
                         <span className="bg-white/20 px-2 py-1 rounded text-xs">
-                            +12 this month
+                            {statistics?.recentActivity
+                                .maintenanceRecordsLast30Days || 0}{" "}
+                            records this month
                         </span>
                     </div>
                 </div>
@@ -132,7 +106,7 @@ const DashboardCards = () => {
                     {/* Optional: Add trend indicator */}
                     <div className="mt-4 flex items-center text-sm text-gray-300">
                         <span className="bg-white/20 px-2 py-1 rounded text-xs">
-                            +8 this month
+                            Active drivers
                         </span>
                     </div>
                 </div>
@@ -144,11 +118,25 @@ const DashboardCards = () => {
                 <div className="px-6 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-gray-900">
-                            Recent Transactions
+                            Recent Maintenance Records
                         </h2>
-                        {/* <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            View All
-                        </button> */}
+                        {statistics && (
+                            <div className="flex items-center gap-4 text-sm">
+                                <span className="text-gray-600">
+                                    Total Records:{" "}
+                                    <span className="font-semibold text-gray-900">
+                                        {statistics.totalStats.totalRecords}
+                                    </span>
+                                </span>
+                                <span className="text-gray-600">
+                                    Total Cost:{" "}
+                                    <Price
+                                        amount={statistics.totalStats.totalCost}
+                                        className="font-semibold text-gray-900"
+                                    />
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Search and Filter */}
@@ -157,22 +145,12 @@ const DashboardCards = () => {
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="Search by customer or service..."
+                                placeholder="Search by driver, car, or category..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
-                        {/* <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option value="all">All Status</option>
-                            <option value="completed">Completed</option>
-                            <option value="pending">Pending</option>
-                            <option value="rejected">Rejected</option>
-                        </select> */}
                     </div>
                 </div>
 
@@ -182,19 +160,19 @@ const DashboardCards = () => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Service
+                                    Car Info
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Amount
+                                    Driver
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cost
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Date
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Customer
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
@@ -202,95 +180,118 @@ const DashboardCards = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredData.map((item) => (
-                                <tr
-                                    key={item.id}
-                                    className="hover:bg-gray-50 transition-colors"
-                                >
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div
-                                                className={`p-2 rounded-lg mr-3 ${
-                                                    item.service ===
-                                                    "Car Rental"
-                                                        ? "bg-blue-100"
-                                                        : "bg-green-100"
-                                                }`}
-                                            >
-                                                {item.service ===
-                                                "Car Rental" ? (
-                                                    <Car
-                                                        className={`w-4 h-4 ${
-                                                            item.service ===
-                                                            "Car Rental"
-                                                                ? "text-blue-600"
-                                                                : "text-green-600"
-                                                        }`}
-                                                    />
-                                                ) : (
-                                                    <Users className="w-4 h-4 text-green-600" />
-                                                )}
-                                            </div>
-                                            <span className="text-sm font-medium text-gray-900">
-                                                {item.service}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <Price
-                                            amount={item.amount}
-                                            className="text-sm font-semibold"
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-600">
-                                            {item.date}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                                                item.status
-                                            )}`}
-                                        >
-                                            {item.status
-                                                .charAt(0)
-                                                .toUpperCase() +
-                                                item.status.slice(1)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-900">
-                                            {item.customer}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-2">
-                                            <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            <button className="p-1 text-gray-400 hover:text-green-600 transition-colors">
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                            {isLoading ? (
+                                <tr>
+                                    <td
+                                        colSpan={6}
+                                        className="px-6 py-8 text-center"
+                                    >
+                                        <p className="text-gray-500">
+                                            Loading maintenance records...
+                                        </p>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : filteredData.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={6}
+                                        className="px-6 py-8 text-center"
+                                    >
+                                        <p className="text-gray-500">
+                                            No maintenance records found.
+                                        </p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredData.map((item) => (
+                                    <tr
+                                        key={item._id}
+                                        className="hover:bg-gray-50 transition-colors cursor-pointer "
+                                        onClick={() => handleView(item._id)}
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="p-2 rounded-lg mr-3 bg-blue-100">
+                                                    <Car className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                        {item.car.brand}{" "}
+                                                        {item.car.model}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
+                                                        {item.car.plateNumber}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="p-2 rounded-lg mr-3 bg-green-100">
+                                                    <Users className="w-4 h-4 text-green-600" />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                        {item.driver.name}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
+                                                        {
+                                                            item.driver
+                                                                .phoneNumber
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm text-gray-900">
+                                                {item.subCategories.map(
+                                                    (sub, idx) => (
+                                                        <span
+                                                            key={sub._id}
+                                                            className="inline-block px-2 py-1 text-xs bg-gray-100 rounded-full mr-1 mb-1"
+                                                        >
+                                                            {sub.name}
+                                                        </span>
+                                                    )
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div>
+                                                <Price
+                                                    amount={item.cost}
+                                                    className="text-sm font-semibold text-gray-900"
+                                                />
+                                                <div className="text-xs text-gray-500">
+                                                    Mechanic:{" "}
+                                                    <Price
+                                                        amount={
+                                                            item.mechanicCost
+                                                        }
+                                                        className="text-xs"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-sm text-gray-600">
+                                                {formatDate(item.date)}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
-
-                {/* Table Footer */}
-                {filteredData.length === 0 && (
-                    <div className="px-6 py-8 text-center">
-                        <p className="text-gray-500">
-                            No transactions found matching your criteria.
-                        </p>
-                    </div>
-                )}
             </div>
         </div>
     );

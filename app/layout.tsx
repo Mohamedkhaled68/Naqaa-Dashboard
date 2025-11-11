@@ -20,7 +20,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className="w-full min-h-screen grid grid-cols-12 relative">
+            <body
+                className="w-full min-h-screen grid grid-cols-12 relative"
+                cz-shortcut-listen="true"
+            >
                 <LayoutContent>{children}</LayoutContent>
             </body>
         </html>

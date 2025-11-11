@@ -28,6 +28,7 @@ export interface Request {
     cost: number;
     mechanicCost: number;
     createdAt: string;
+    date: string;
 }
 
 export interface RequestFormData {
