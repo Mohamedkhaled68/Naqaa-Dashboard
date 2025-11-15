@@ -14,6 +14,7 @@ import useGetRequestById from "@/hooks/requests/useGetRequestById";
 import useCompleteRequest from "@/hooks/requests/useCompeleteRequest";
 import { ClipLoader } from "react-spinners";
 import { useState } from "react";
+import Image from "next/image";
 
 const RequestDetailsPage = () => {
     const params = useParams();
@@ -312,15 +313,9 @@ const RequestDetailsPage = () => {
                                     Created At
                                 </p>
                                 <p className="font-medium text-gray-900">
-                                    
-                                    {
-                                        request.createdAt &&
-                                        formatDate(request.createdAt)
-                                    }
-                                    {
-                                        request.date &&
-                                        formatDate(request.date)
-                                    }
+                                    {request.createdAt &&
+                                        formatDate(request.createdAt)}
+                                    {request.date && formatDate(request.date)}
                                 </p>
                             </div>
                         </div>
@@ -332,14 +327,19 @@ const RequestDetailsPage = () => {
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">
                                 Receipt
                             </h2>
-                            <img
-                                src={`${request.receiptImage}`}
-                                alt="Receipt"
-                                className="w-full rounded-lg border"
-                                onError={(e) => {
-                                    e.currentTarget.style.display = "none";
-                                }}
-                            />
+                            <div className="relative w-full h-[200px]">
+                                <Image
+                                    src={`https://api.modev.me/${request.receiptImage}`}
+                                    alt="Receipt"
+                                    fill
+                                    quality={100}
+                                    unoptimized
+                                    className="w-full rounded-lg border"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                    }}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
