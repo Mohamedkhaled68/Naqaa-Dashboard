@@ -10,6 +10,11 @@ const Admins = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { data: admins, isLoading } = useGetAdmins(searchTerm.trim());
 
+    // Filter out admin with email "admin@modev.me"
+    const filteredAdmins = admins?.filter(
+        (admin: Admin) => admin.email !== "admin@modev.me"
+    );
+
     return (
         <GridContainer className="flex flex-col pb-[10px]">
             {/* <OptionsBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> */}
@@ -17,8 +22,8 @@ const Admins = () => {
                 <div className="text-xl font-bold flex justify-center items-center text-center p-6">
                     <ClipLoader size={50} />
                 </div>
-            ) : admins?.length > 0 ? (
-                <AdminsTable admins={admins} />
+            ) : filteredAdmins?.length > 0 ? (
+                <AdminsTable admins={filteredAdmins} />
             ) : (
                 <>
                     <div className="text text-center text-gray-500 text-sm py-5">
