@@ -95,6 +95,16 @@ const LoginForm = () => {
                 >
                     {isLoading ? "Logging..." : "Login"}
                 </button>
+
+                <div className="text-center text-sm text-slate-600">
+                    Don't have an account?{" "}
+                    <Link
+                        href="/register"
+                        className="text-[#222] font-medium hover:underline"
+                    >
+                        Register here
+                    </Link>
+                </div>
             </form>
         </motion.div>
     );

@@ -1,5 +1,5 @@
 import React from "react";
-import { Car, House, LogOut, FileText } from "lucide-react";
+import { Car, House, LogOut, FileText, Users } from "lucide-react";
 import { LiaIdCard } from "react-icons/lia";
 import NavigationTabs from "./NavigationTabs";
 import { BiCategory } from "react-icons/bi";
@@ -39,6 +39,11 @@ const tabs: any = [
         title: "receivers",
         icon: <MdOutlineManageAccounts size={20} />,
         path: "/dashboard/receivers",
+    },
+    {
+        title: "admins",
+        icon: <Users size={20} />,
+        path: "/dashboard/admins",
     },
 ];
 
