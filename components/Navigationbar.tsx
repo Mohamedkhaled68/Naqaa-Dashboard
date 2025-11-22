@@ -8,31 +8,37 @@ import Cookies from "js-cookie";
 import { useAdminStore } from "@/store/admin/useAdminStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { MdOutlineManageAccounts } from "react-icons/md";
 const tabs: any = [
     {
         title: "dashboard",
-        icon: <House />,
+        icon: <House size={20} />,
         path: "/dashboard",
     },
     {
         title: "drivers",
-        icon: <LiaIdCard />,
+        icon: <LiaIdCard size={20} />,
         path: "/dashboard/drivers",
     },
     {
         title: "cars",
-        icon: <Car />,
+        icon: <Car size={20} />,
         path: "/dashboard/cars",
     },
     {
         title: "categories",
-        icon: <BiCategory />,
+        icon: <BiCategory size={20} />,
         path: "/dashboard/categories",
     },
     {
         title: "requests",
-        icon: <FileText />,
+        icon: <FileText size={20} />,
         path: "/dashboard/requests",
+    },
+    {
+        title: "receivers",
+        icon: <MdOutlineManageAccounts size={20} />,
+        path: "/dashboard/receivers",
     },
 ];
 

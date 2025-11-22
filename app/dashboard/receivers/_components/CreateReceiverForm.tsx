@@ -1,93 +1,65 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { User, Phone, CreditCard, FileText, MapPin, Plus, Lock } from "lucide-react";
+import { User, Phone, Mail, Lock, Plus } from "lucide-react";
 import toast from "react-hot-toast";
-import useCreateDriver from "@/hooks/drivers/useCreateDriver";
+import useCreateReceiver from "@/hooks/receivers/useCreateReceiver";
+import { CreateReceiverData } from "@/hooks/receivers/useCreateReceiver";
 
-type Driver = {
-    name: string;
-    phoneNumber: string;
-    nationalId: string;
-    licenseNumber: string;
-    address?: string; // Make optional
-    password: string;
-};
-
-// Update the FormErrors interface
 interface FormErrors {
     name?: string;
+    email?: string;
     phoneNumber?: string;
-    nationalId?: string;
-    licenseNumber?: string;
-    address?: string;
     password?: string;
 }
 
-const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
-    const [formData, setFormData] = useState<Driver>({
+const CreateReceiverForm = ({ onClose }: { onClose: () => void }) => {
+    const [formData, setFormData] = useState<CreateReceiverData>({
         name: "",
+        email: "",
         phoneNumber: "",
-        nationalId: "",
-        licenseNumber: "",
-        address: "",
         password: "",
     });
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    const { mutateAsync: createDriver } = useCreateDriver();
+    const { mutateAsync: createReceiver } = useCreateReceiver();
 
     const validateForm = (): boolean => {
         const newErrors: FormErrors = {};
 
+        // Name validation
         if (!formData.name.trim()) {
             newErrors.name = "Name is required";
         } else if (formData.name.trim().length < 2) {
             newErrors.name = "Name must be at least 2 characters";
         }
 
+        // Email validation
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = "Please enter a valid email address";
+        }
+
+        // Phone number validation
         if (!formData.phoneNumber.trim()) {
             newErrors.phoneNumber = "Phone number is required";
         } else if (!/^\+?[\d\s-()]{10,}$/.test(formData.phoneNumber)) {
             newErrors.phoneNumber = "Please enter a valid phone number";
         }
 
-        if (!formData.nationalId.trim()) {
-            newErrors.nationalId = "National ID is required";
-        } else if (formData.nationalId.trim().length < 8) {
-            newErrors.nationalId = "National ID must be at least 8 characters";
-        }
-
-        if (!formData.licenseNumber.trim()) {
-            newErrors.licenseNumber = "License number is required";
-        } else if (formData.licenseNumber.trim().length < 5) {
-            newErrors.licenseNumber =
-                "License number must be at least 5 characters";
-        }
-
+        // Password validation
         if (!formData.password.trim()) {
             newErrors.password = "Password is required";
         } else if (formData.password.trim().length < 6) {
             newErrors.password = "Password must be at least 6 characters";
         }
 
-        // Remove address validation - it's now optional
-        // Only validate if address is provided and too short
-        if (
-            formData.address &&
-            formData.address.trim().length > 0 &&
-            formData.address.trim().length < 10
-        ) {
-            newErrors.address = "Please provide a complete address";
-        }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleInputChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ): void => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -115,22 +87,22 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
         setIsSubmitting(true);
 
         try {
-            await createDriver({ ...formData });
+            await createReceiver(formData);
 
-            toast.success("Driver created successfully!");
+            toast.success("Receiver created successfully!");
 
             onClose();
             // Reset form
             setFormData({
                 name: "",
+                email: "",
                 phoneNumber: "",
-                nationalId: "",
-                licenseNumber: "",
-                address: "",
                 password: "",
             });
         } catch (err: any) {
-            toast.error(err?.response?.data?.message);
+            toast.error(
+                err?.response?.data?.message || "Failed to create receiver"
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -145,10 +117,10 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                             <Plus className="w-8 h-8 text-indigo-600" />
                         </div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            Create New Driver
+                            Create New Receiver
                         </h1>
                         <p className="text-gray-600">
-                            Add a new driver to the system
+                            Add a new receiver to the system
                         </p>
                     </div>
 
@@ -174,12 +146,43 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                                             ? "border-red-500"
                                             : "border-gray-300"
                                     }`}
-                                    placeholder="Enter driver's full name"
+                                    placeholder="Enter receiver's full name"
                                 />
                             </div>
                             {errors.name && (
                                 <p className="mt-1 text-sm text-red-600">
                                     {errors.name}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Email Field */}
+                        <div>
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-semibold text-gray-700 mb-2"
+                            >
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                                        errors.email
+                                            ? "border-red-500"
+                                            : "border-gray-300"
+                                    }`}
+                                    placeholder="Enter email address"
+                                />
+                            </div>
+                            {errors.email && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {errors.email}
                                 </p>
                             )}
                         </div>
@@ -215,68 +218,6 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                             )}
                         </div>
 
-                        {/* National ID Field */}
-                        <div>
-                            <label
-                                htmlFor="nationalId"
-                                className="block text-sm font-semibold text-gray-700 mb-2"
-                            >
-                                National ID
-                            </label>
-                            <div className="relative">
-                                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    id="nationalId"
-                                    name="nationalId"
-                                    value={formData.nationalId}
-                                    onChange={handleInputChange}
-                                    className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                                        errors.nationalId
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                    }`}
-                                    placeholder="Enter national ID number"
-                                />
-                            </div>
-                            {errors.nationalId && (
-                                <p className="mt-1 text-sm text-red-600">
-                                    {errors.nationalId}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* License Number Field */}
-                        <div>
-                            <label
-                                htmlFor="licenseNumber"
-                                className="block text-sm font-semibold text-gray-700 mb-2"
-                            >
-                                License Number
-                            </label>
-                            <div className="relative">
-                                <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    id="licenseNumber"
-                                    name="licenseNumber"
-                                    value={formData.licenseNumber}
-                                    onChange={handleInputChange}
-                                    className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                                        errors.licenseNumber
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                    }`}
-                                    placeholder="Enter driver's license number"
-                                />
-                            </div>
-                            {errors.licenseNumber && (
-                                <p className="mt-1 text-sm text-red-600">
-                                    {errors.licenseNumber}
-                                </p>
-                            )}
-                        </div>
-
                         {/* Password Field */}
                         <div>
                             <label
@@ -308,55 +249,49 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
                             )}
                         </div>
 
-                        {/* Address Field */}
-                        <div>
-                            <label
-                                htmlFor="address"
-                                className="block text-sm font-semibold text-gray-700 mb-2"
+                        {/* Submit Buttons */}
+                        <div className="flex gap-4 pt-6">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                             >
-                                Address{" "}
-                                <span className="text-gray-400 font-normal">
-                                    (Optional)
-                                </span>
-                            </label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-4 text-gray-400 w-5 h-5" />
-                                <textarea
-                                    id="address"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleInputChange}
-                                    rows={3}
-                                    className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none ${
-                                        errors.address
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                    }`}
-                                    placeholder="Enter complete address (optional)"
-                                />
-                            </div>
-                            {errors.address && (
-                                <p className="mt-1 text-sm text-red-600">
-                                    {errors.address}
-                                </p>
-                            )}
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {isSubmitting ? (
+                                    <span className="flex items-center justify-center">
+                                        <svg
+                                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                className="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="4"
+                                            ></circle>
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
+                                        </svg>
+                                        Creating...
+                                    </span>
+                                ) : (
+                                    "Create Receiver"
+                                )}
+                            </button>
                         </div>
-
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full cursor-pointer bg-[#222] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#111] focus:ring-2  focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? (
-                                <div className="flex items-center justify-center">
-                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                                    Creating Driver...
-                                </div>
-                            ) : (
-                                "Create Driver"
-                            )}
-                        </button>
                     </form>
                 </div>
             </div>
@@ -364,4 +299,4 @@ const CreateDriverForm = ({ onClose }: { onClose: () => void }) => {
     );
 };
 
-export default CreateDriverForm;
+export default CreateReceiverForm;

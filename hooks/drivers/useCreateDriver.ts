@@ -8,6 +8,7 @@ type Driver = {
     phoneNumber: string;
     nationalId: string;
     licenseNumber: string;
+    password: string;
     address?: string;
 };
 

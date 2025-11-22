@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Request } from "@/types/requests";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -8,7 +7,7 @@ const useGetAllReceivers = () => {
     const token = Cookies.get("token");
     return useQuery({
         queryKey: ["receivers"],
-        queryFn: async (): Promise<Request> => {
+        queryFn: async (): Promise<Receiver[]> => {
             const response = await axios.get(`${baseUrl}/receivers`, {
                 headers: {
                     "Content-Type": "application/json",
